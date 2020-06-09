@@ -46,10 +46,8 @@ jobs:
         wasm-opt -Os -o public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
         terser public/pkg/fluss.js --output public/pkg/fluss.min.js --compress --module --ecma 7
         rm public/pkg/.gitignore
-        rm public/pkg/LICENSE
         rm public/pkg/*.ts
         rm public/pkg/*.json
-        rm public/pkg/*.md
         rm public/pkg/fluss_bg.wasm
         rm public/pkg/fluss.js
         mv public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
