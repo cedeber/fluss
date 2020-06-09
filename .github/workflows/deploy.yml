@@ -20,7 +20,7 @@ jobs:
         override: true
     - run: |
         curl -LJO https://github.com/WebAssembly/binaryen/releases/download/version_93/binaryen-version_93-x86_64-linux.tar.gz
-        tar -zxvf binaryen-version_91-x86_64-linux.tar.gz
+        tar -zxvf binaryen-version_93-x86_64-linux.tar.gz
         export PATH=$PATH:`pwd`/binaryen-version_91/
         cargo install wasm-pack
         npm install --global terser
