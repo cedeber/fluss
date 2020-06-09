@@ -41,7 +41,7 @@ jobs:
         cargo install wasm-pack
         npm install --global terser
         cd fluss/
-        wasm-pack build --target web --out-dir ../app/public/pkg/
+        wasm-pack build --dev --target web --out-dir ../app/public/pkg/
         cd ../app/
         wasm-opt -Os -o public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
         terser public/pkg/fluss.js --output public/pkg/fluss.min.js --compress --module --ecma 7
