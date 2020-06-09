@@ -10,6 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cargo
+        key: ${{ runner.os }}-cargo
+    - uses: actions/cache@v1
+      with:
+        path: ./fluss/target
+        key: ${{ runner.os }}-target
+    - uses: actions/cache@v1
+      with:
+        path: ./app/node_modules
+        key: ${{ runner.os }}-node
+    - uses: actions/cache@v1
+      with:
+        path: target
+        key: ${{ runner.os }}-target
     - uses: actions/setup-node@v1
       with:
         node-version: 12.x
@@ -21,7 +37,7 @@ jobs:
     - run: |
         curl -LJO https://github.com/WebAssembly/binaryen/releases/download/version_93/binaryen-version_93-x86_64-linux.tar.gz
         tar -zxvf binaryen-version_93-x86_64-linux.tar.gz
-        export PATH=$PATH:`pwd`/binaryen-version_91/
+        export PATH=$PATH:`pwd`/binaryen-version_93/
         cargo install wasm-pack
         npm install --global terser
         cd fluss/
