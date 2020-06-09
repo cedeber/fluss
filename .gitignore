@@ -1,2 +1,8 @@
+public/pkg
+target
+build
 *.lock
+*lock.*
+node_modules
+.idea
 .DS_Store

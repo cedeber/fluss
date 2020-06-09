@@ -1,0 +1,29 @@
+[package]
+name = "fluss"
+version = "0.8.0"
+description = "Experimental Canvas editor done with Rust and WebAssembly."
+authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
+license = "MIT"
+edition = "2018"
+repository = "git+https://github.com/cedeber/fluss.git"
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+opt-level = 's'
+
+[features]
+default = ["console_error_panic_hook", "wee_alloc"]
+
+[dependencies]
+wasm-bindgen = "0.2.63"
+console_error_panic_hook = { version = "0.1.6", optional = true }
+wee_alloc = { version = "0.4.5", optional = true }
+nalgebra = "0.21.0"
+ncollide2d = "0.23.0"
+piet = "0.1.0"
+piet-web = "0.1.0"
+seed = "0.7.0"
+uuid = { version = "0.8.1", features = ["wasm-bindgen", "v4"] }

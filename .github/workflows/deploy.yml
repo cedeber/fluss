@@ -1,0 +1,49 @@
+name: deploy
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - run: |
+        curl -LJO https://github.com/WebAssembly/binaryen/releases/download/version_93/binaryen-version_93-x86_64-linux.tar.gz
+        tar -zxvf binaryen-version_91-x86_64-linux.tar.gz
+        export PATH=$PATH:`pwd`/binaryen-version_91/
+        cargo install wasm-pack
+        npm install --global terser
+        cd fluss/
+        wasm-pack build --target web --out-dir ../app/public/app/pkg/
+        cd ../app/
+        wasm-opt -Os -o public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
+        terser public/pkg/fluss.js --output public/pkg/fluss.min.js --compress --module --ecma 7
+        rm public/pkg/.gitignore
+        rm public/pkg/LICENSE
+        rm public/pkg/*.ts
+        rm public/pkg/*.json
+        rm public/pkg/*.md
+        rm public/pkg/fluss_bg.wasm
+        rm public/pkg/fluss.js
+        mv public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
+        mv public/pkg/fluss.min.js public/pkg/fluss.js
+        npm install
+        npm run build
+        cd ../build/
+        echo "beta.eukolia.design" > CNAME
+        cd ..
+    - uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
