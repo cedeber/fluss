@@ -27,15 +27,24 @@ pub fn main() -> Result<(), JsValue> {
 }
 
 #[wasm_bindgen]
+extern "C" {
+    fn csl(s: &str);
+}
+
+#[wasm_bindgen]
 pub struct Foo {
     name: String,
+    cb: Box<dyn Fn(&str)>,
 }
 
 #[wasm_bindgen]
 impl Foo {
     #[wasm_bindgen(constructor)]
     pub fn new(name: String) -> Self {
-        Self { name }
+        Self {
+            name,
+            cb: Box::new(csl),
+        }
     }
 
     #[wasm_bindgen(getter)]
@@ -46,6 +55,11 @@ impl Foo {
     #[wasm_bindgen(setter)]
     pub fn set_name(&mut self, name: String) {
         self.name = name;
+    }
+
+    pub fn test(&mut self, name: String) {
+        self.name = name.clone();
+        (self.cb)(&name);
     }
 }
 
