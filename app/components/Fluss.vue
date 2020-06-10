@@ -12,6 +12,8 @@
                 await init();
                 let bar = new Foo("test");
                 console.log(bar.name);
+                bar.name = "new world";
+                console.log(bar.name);
             }());
         },
     };

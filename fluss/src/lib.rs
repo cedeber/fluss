@@ -26,18 +26,16 @@ pub fn main() -> Result<(), JsValue> {
     Ok(())
 }
 
-#[wasm_bindgen(js_name = Foo)]
-pub struct JsFoo {
+#[wasm_bindgen]
+pub struct Foo {
     name: String,
 }
 
-#[wasm_bindgen(js_class = Foo)]
-impl JsFoo {
+#[wasm_bindgen]
+impl Foo {
     #[wasm_bindgen(constructor)]
     pub fn new(name: String) -> Self {
-        JsFoo {
-            name: String::from("world"),
-        }
+        Self { name }
     }
 
     #[wasm_bindgen(getter)]
