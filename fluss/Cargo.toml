@@ -1,11 +1,9 @@
 [package]
 name = "fluss"
 version = "0.8.0"
-description = "Experimental Canvas editor done with Rust and WebAssembly."
+description = "Experimental UI Design Application with Motion"
 authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
-license = "MIT"
 edition = "2018"
-repository = "git+https://github.com/cedeber/fluss.git"
 
 [lib]
 crate-type = ["cdylib"]

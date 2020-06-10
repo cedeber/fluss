@@ -26,6 +26,31 @@ pub fn main() -> Result<(), JsValue> {
     Ok(())
 }
 
+#[wasm_bindgen(js_name = Foo)]
+pub struct JsFoo {
+    name: String,
+}
+
+#[wasm_bindgen(js_class = Foo)]
+impl JsFoo {
+    #[wasm_bindgen(constructor)]
+    pub fn new(name: String) -> Self {
+        JsFoo {
+            name: String::from("world"),
+        }
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
+}
+
 // --- Settings ---
 pub static POINTER_SIZE: f64 = 11.0;
 pub static RECT_BORDER_WIDTH: f64 = 2.0;
