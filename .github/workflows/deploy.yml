@@ -16,16 +16,12 @@ jobs:
         key: ${{ runner.os }}-cargo
     - uses: actions/cache@v1
       with:
-        path: ./fluss/target
+        path: ./wasm/target
         key: ${{ runner.os }}-target
     - uses: actions/cache@v1
       with:
         path: ./app/node_modules
         key: ${{ runner.os }}-node
-    - uses: actions/cache@v1
-      with:
-        path: target
-        key: ${{ runner.os }}-target
     - uses: actions/setup-node@v1
       with:
         node-version: 12.x
@@ -40,7 +36,7 @@ jobs:
         export PATH=$PATH:`pwd`/binaryen-version_93/
         cargo install wasm-pack
         npm install --global terser
-        cd fluss/
+        cd wasm/
         wasm-pack build --dev --target web --out-dir ../app/public/pkg/
         cd ../app/
         wasm-opt -Os -o public/pkg/fluss.wasm public/pkg/fluss_bg.wasm

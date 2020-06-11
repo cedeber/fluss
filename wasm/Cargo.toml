@@ -1,7 +1,7 @@
 [package]
 name = "fluss"
-version = "0.8.0"
-description = "Experimental UI Design Application with Motion"
+version = "0.1.0"
+description = "UI Design Application with Motion"
 authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
 edition = "2018"
 
@@ -19,9 +19,10 @@ default = ["console_error_panic_hook", "wee_alloc"]
 wasm-bindgen = "0.2.63"
 console_error_panic_hook = { version = "0.1.6", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
-nalgebra = "0.21.0"
-ncollide2d = "0.23.0"
+nalgebra = "0.21.1"
+ncollide2d = "0.23.2"
 piet = "0.1.0"
 piet-web = "0.1.0"
 seed = "0.7.0"
 uuid = { version = "0.8.1", features = ["wasm-bindgen", "v4"] }
+enclose = "1.1.8"

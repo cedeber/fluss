@@ -11,5 +11,5 @@ release : src/lib.rs
 	mv public/pkg/fluss.min.js public/pkg/fluss.js
 
 clean :
-	rm -rf fluss/target/
+	rm -rf wasm/target/
 	rm -rf ../app/public/pkg/

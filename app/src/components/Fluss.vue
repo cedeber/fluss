@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import init, { Foo } from "/pkg/fluss.js";
+import init, { Api, start } from "/pkg/fluss.js";
 
 window.csl = function csl(name: string) {
   console.log("csl", name);
@@ -12,16 +12,20 @@ window.csl = function csl(name: string) {
 export default {
   name: "Fluss",
   mounted() {
-    (async function() {
+    (async function () {
       await init();
-      let bar = new Foo("test");
+      const [add_widget] = start();
+
+      add_widget("smiley");
+
+      let bar = new Api("test");
       console.log(bar.name);
       bar.name = "new world";
       console.log(bar.name);
       bar.test("another world");
       console.log(bar.name);
     })();
-  }
+  },
 };
 </script>
 
@@ -31,4 +35,3 @@ export default {
   cursor: none;
 }
 </style>
-
