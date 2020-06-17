@@ -1,31 +1,22 @@
 {
-    "compilerOptions": {
-        "allowSyntheticDefaultImports": true,
-        "experimentalDecorators": true,
-        "forceConsistentCasingInFileNames": true,
-        "incremental": true,
-        "importHelpers": true,
-        "lib": [
-            "dom",
-            "esnext",
-            "webworker"
-        ],
-        "module": "esnext",
-        "moduleResolution": "node",
-        "newLine": "lf",
-        "noEmit": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "removeComments": true,
-        "strict": true,
-        "target": "es2017"
-    },
-    "include": [
-        "public/pkg/fluss.d.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "lib": ["dom", "esnext", "webworker"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "newLine": "lf",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": true,
+    "strict": true,
+    "target": "es2017"
+  },
+  "include": ["public/pkg/fluss.d.ts"],
+  "exclude": ["node_modules"]
 }

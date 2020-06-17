@@ -1,7 +1,7 @@
 import type { UserConfig } from "vite";
 
 const config: UserConfig = {
-    outDir: "../build/",
+  outDir: "../build/",
 };
 
 export default config;
