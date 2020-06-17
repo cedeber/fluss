@@ -31,17 +31,17 @@ jobs:
         toolchain: stable
         override: true
     - run: |
-        curl -LJO https://github.com/WebAssembly/binaryen/releases/download/version_93/binaryen-version_93-x86_64-linux.tar.gz
-        tar -zxvf binaryen-version_93-x86_64-linux.tar.gz
-        export PATH=$PATH:`pwd`/binaryen-version_93/
-    - run: cargo install wasm-pack
+        curl -LJO https://github.com/WebAssembly/binaryen/releases/download/version_94/binaryen-version_94-x86_64-linux.tar.gz
+        tar -zxvf binaryen-version_94-x86_64-linux.tar.gz
+        export PATH=$PATH:`pwd`/binaryen-version_94/
+    - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
     - run: npm install --global terser
     - run: |
         cd wasm/
         wasm-pack build --dev --target web --out-dir ../app/public/pkg/
     - run: |
         cd ../app/
-#        wasm-opt -Os -o public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
+        wasm-opt -Os -o public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
     - run: terser public/pkg/fluss.js --output public/pkg/fluss.min.js --compress --module --ecma 7
     - run: |
         rm public/pkg/.gitignore
