@@ -1,8 +1,9 @@
 use crate::widgets::GeometryChangeState;
+use enclose::enc;
 use nalgebra::Point2;
 use piet::{Color, RenderContext};
 use piet_web::WebRenderContext;
-use seed::{a, attrs, canvas, div, h5, i, input, label, li, prelude::*, span, ul, App, C};
+use seed::{attrs, canvas, prelude::*, App};
 use web_sys::HtmlCanvasElement;
 use widgets::{
     rect::{Rect, RectState},
@@ -21,40 +22,43 @@ pub fn main() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
 
-    App::start("wasm", init, update, view);
-
     Ok(())
 }
 
-#[wasm_bindgen(js_name = Foo)]
-pub struct JsFoo {
-    name: String,
+#[wasm_bindgen]
+pub fn start() -> Box<[JsValue]> {
+    let app = App::start("wasm", init, update, view);
+
+    create_closures_for_js(&app)
 }
 
-#[wasm_bindgen(js_class = Foo)]
-impl JsFoo {
-    #[wasm_bindgen(constructor)]
-    pub fn new(name: String) -> Self {
-        JsFoo {
-            name: String::from("world"),
-        }
-    }
+fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
+    let add_widget = wrap_in_permanent_closure(enc!((app) move |_widget: String| {
+        app.update(Msg::AddWidget)
+    }));
 
-    #[wasm_bindgen(getter)]
-    pub fn name(&self) -> String {
-        self.name.clone()
-    }
+    vec![add_widget].into_boxed_slice()
+}
 
-    #[wasm_bindgen(setter)]
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
-    }
+fn wrap_in_permanent_closure<T>(f: impl FnMut(T) + 'static) -> JsValue
+where
+    T: wasm_bindgen::convert::FromWasmAbi + 'static,
+{
+    let closure = Closure::new(f);
+    let closure_as_js_value = closure.as_ref().clone();
+    closure.forget();
+    closure_as_js_value
+}
+
+#[wasm_bindgen]
+extern "C" {
+    fn update_widget(s: &JsValue);
 }
 
 // --- Settings ---
-pub static POINTER_SIZE: f64 = 11.0;
+pub static POINTER_SIZE: f64 = 8.0;
 pub static RECT_BORDER_WIDTH: f64 = 2.0;
-pub static RECT_ANCHOR_RADIUS: f64 = 5.0;
+pub static RECT_ANCHOR_RADIUS: f64 = 3.0;
 
 // --- Application ---
 pub enum WidgetType {
@@ -256,7 +260,7 @@ fn draw(
     let mut ctx = WebRenderContext::new(context, window);
     let cursor = ui_state.cursor;
 
-    ctx.clear(Color::WHITE);
+    ctx.clear(Color::rgb8(0xf5, 0xf5, 0xf5));
 
     // --- Update ---
 
@@ -348,207 +352,29 @@ fn draw(
 }
 
 // `view` describes what to display.
-pub fn view(model: &Model) -> impl IntoNodes<Msg> {
+pub fn view(model: &Model) -> Node<Msg> {
     let widgets = &model.widgets;
     let mut selected_widget: Option<&Smiley> = None;
     if let Some(select_widget_uuid) = &model.ui_state.select_widget_uuid {
         selected_widget = widgets.iter().find(|w| w.uuid.eq(select_widget_uuid));
+        update_widget(&JsValue::from_serde(&selected_widget).unwrap());
+    } else {
+        update_widget(&JsValue::null());
     }
 
-    vec![
-        view_header(),
-        view_widget_panel(selected_widget),
-        canvas![
-            el_ref(&model.canvas),
-            attrs![
-                At::Width => px(200),
-                At::Height => px(100),
-            ],
-            ev(Ev::MouseMove, |event| Msg::MouseMoved(
-                event.unchecked_into()
-            )),
-            ev(Ev::MouseDown, |event| Msg::MouseDown(
-                event.unchecked_into()
-            )),
-            ev(Ev::MouseUp, |_| Msg::MouseUp),
-            ev(Ev::MouseOut, |_| Msg::MouseOut),
+    canvas![
+        el_ref(&model.canvas),
+        attrs![
+            At::Width => px(200),
+            At::Height => px(100),
         ],
-    ]
-}
-
-fn view_widget_panel(widget: Option<&Smiley>) -> Node<Msg> {
-    let mut panel: Vec<Node<Msg>> = vec![];
-
-    if let Some(current_widget) = widget {
-        panel.push(div![
-            C!["container"],
-            h5![&current_widget.name],
-            div![
-                C!["form-group"],
-                label!["Geometry"],
-                div![
-                    C!["input-group mb-3"],
-                    div![
-                        C!["input-group-prepend"],
-                        span![C!["input-group-text"], "CX"],
-                    ],
-                    input![
-                        C!["form-control"],
-                        attrs![
-                            At::Type => "number",
-                            At::Value => &current_widget.geometry.center.x,
-                            At::Pattern => "[0-9]*",
-                        ],
-                        {
-                            let uuid = String::from(&current_widget.uuid);
-                            let geometry = current_widget.geometry.clone();
-                            input_ev(Ev::Input, move |value| {
-                                Msg::UpdateWidget(
-                                    uuid,
-                                    Geometry {
-                                        center: Point2::new(
-                                            value.parse().unwrap(),
-                                            geometry.center.y,
-                                        ),
-                                        radius: geometry.radius,
-                                    },
-                                )
-                            })
-                        },
-                    ],
-                    div![
-                        C!["input-group-append"],
-                        span![C!["input-group-text"], "px"],
-                    ],
-                ],
-                div![
-                    C!["input-group mb-3"],
-                    div![
-                        C!["input-group-prepend"],
-                        span![C!["input-group-text"], "CY"],
-                    ],
-                    input![
-                        C!["form-control"],
-                        attrs![
-                            At::Type => "number",
-                            At::Value => &current_widget.geometry.center.y,
-                            At::Pattern => "[0-9]*",
-                        ],
-                        {
-                            let uuid = String::from(&current_widget.uuid);
-                            let geometry = current_widget.geometry.clone();
-                            input_ev(Ev::Input, move |value| {
-                                Msg::UpdateWidget(
-                                    uuid,
-                                    Geometry {
-                                        center: Point2::new(
-                                            geometry.center.x,
-                                            value.parse().unwrap(),
-                                        ),
-                                        radius: geometry.radius,
-                                    },
-                                )
-                            })
-                        },
-                    ],
-                    div![
-                        C!["input-group-append"],
-                        span![C!["input-group-text"], "px"],
-                    ],
-                ],
-                div![
-                    C!["input-group mb-3"],
-                    div![
-                        C!["input-group-prepend"],
-                        span![C!["input-group-text"], "r"],
-                    ],
-                    input![
-                        C!["form-control"],
-                        attrs![
-                            At::Type => "number",
-                            At::Value => &current_widget.geometry.radius,
-                            At::Pattern => "[0-9]*",
-                        ],
-                        {
-                            let uuid = String::from(&current_widget.uuid);
-                            let geometry = current_widget.geometry.clone();
-                            input_ev(Ev::Input, move |value| {
-                                Msg::UpdateWidget(
-                                    uuid,
-                                    Geometry {
-                                        center: Point2::new(geometry.center.x, geometry.center.y),
-                                        radius: value.parse().unwrap(),
-                                    },
-                                )
-                            })
-                        },
-                    ],
-                    div![
-                        C!["input-group-append"],
-                        span![C!["input-group-text"], "px"],
-                    ],
-                ],
-            ],
-        ]);
-    }
-
-    div![
-        C!["sidebar bg-light border-left"],
-        div![C!["sidebar-sticky"], panel]
-    ]
-}
-
-fn view_header() -> Node<Msg> {
-    div![
-        C!["navbar navbar-expand navbar-dark fixed-top bg-dark flex-nowrap py-1"],
-        div![C!["navbar-brand mb-0 h1"], "Fluss"],
-        ul![
-            C!["navbar-nav mr-auto"],
-            li![
-                C!["nav-item dropdown"],
-                a![
-                    //href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                    C!["nav-link dropdown-toggle"],
-                    "Widgets",
-                    attrs![
-                        At::Href => "#",
-                        At::Id => "navbarDropdown",
-                        At::from("role") => "button",
-                        At::from("data-toggle") => "dropdown",
-                        At::from("aria-haspopup") => "true",
-                        At::from("aria-expanded") => "false",
-                    ],
-                ],
-                div![
-                    C!["dropdown-menu"],
-                    attrs![
-                        At::from("aria-labelledby") => "navbarDropdown",
-                    ],
-                    a![
-                        C!["dropdown-item"],
-                        attrs![
-                            At::Href => "#",
-                        ],
-                        "🙂 Smiley",
-                        ev(Ev::Click, |_| Msg::AddWidget),
-                    ]
-                ],
-            ],
-        ],
-        ul![
-            C!["navbar-nav"],
-            li![
-                C!["nav-item"],
-                a![
-                    C!["nav-link"],
-                    attrs![
-                        At::Href => "https://github.com/cedeber/fluss",
-                        At::Target => "_blank",
-                        At::Rel => "noopener",
-                    ],
-                    i![C!["fab fa-github fa-lg"]],
-                ],
-            ],
-        ],
+        ev(Ev::MouseMove, |event| Msg::MouseMoved(
+            event.unchecked_into()
+        )),
+        ev(Ev::MouseDown, |event| Msg::MouseDown(
+            event.unchecked_into()
+        )),
+        ev(Ev::MouseUp, |_| Msg::MouseUp),
+        ev(Ev::MouseOut, |_| Msg::MouseOut),
     ]
 }
