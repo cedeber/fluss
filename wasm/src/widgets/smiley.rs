@@ -7,16 +7,17 @@ use piet::{
     Color, RenderContext,
 };
 use piet_web::WebRenderContext;
+use serde::{Deserialize, Serialize};
 use std::f64;
 use uuid::Uuid;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Geometry {
     pub center: Point2<f64>,
     pub radius: f64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Smiley {
     pub geometry: Geometry,
     pub name: String,

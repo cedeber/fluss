@@ -1,20 +1,44 @@
 import { createStore } from "vuex";
 
-interface State {
-    count: number;
+export interface State {
+  currentWidget: Widget | null;
+  api: any;
 }
 
+export interface Widget {
+  uuid: string;
+  type: string; // Geometry Type?
+  geometry: any;
+}
+
+// --- State ---
 const state: State = {
-    count: 1,
+  currentWidget: undefined, // for panel
+  api: {}, // from wasm
 };
 
-const mutations = {
-    increment(state: State) {
-        state.count += 1;
-    },
-    decrement(state: State) {
-        state.count -= 1;
-    },
-}
+// --- Getters ---
+const getters = {};
 
-export const store = createStore({ state, mutations });
+// --- Mutations: MUTATE ---
+export const MUTATE_WIDGET = "MUTATE_WIDGET";
+
+const mutations = {
+  [MUTATE_WIDGET](state: State, payload: Widget) {
+    state.currentWidget = payload;
+  },
+  api(state: State, payload: any) {
+    state.api = payload;
+  },
+};
+
+// --- Actions: UPDATE ---
+//export const UPDATE_WIDGET = "UPDATE_WIDGET";
+
+const actions = {
+  //[UPDATE_WIDGET]({ commit }, payload) {
+  //  commit(MUTATION_UPDATE_WIDGET, payload);
+  //},
+};
+
+export const store = createStore({ state, getters, mutations, actions });

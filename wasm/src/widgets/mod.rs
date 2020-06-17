@@ -1,5 +1,6 @@
 use cursor::Cursor;
 use piet_web::WebRenderContext;
+use serde::{Deserialize, Serialize};
 use std::f64;
 
 pub mod cursor;
@@ -14,7 +15,7 @@ pub(crate) trait Draw<T> {
 }
 
 // --- Geometry ---
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
 pub struct RectGeometry {
     pub x: f64,
     pub y: f64,
@@ -23,7 +24,7 @@ pub struct RectGeometry {
 }
 
 // --- Widget State ---
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct WidgetState {
     pub uuid: String,
     pub selected: bool,

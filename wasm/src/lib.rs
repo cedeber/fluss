@@ -3,7 +3,7 @@ use enclose::enc;
 use nalgebra::Point2;
 use piet::{Color, RenderContext};
 use piet_web::WebRenderContext;
-use seed::{a, attrs, canvas, div, h5, i, input, label, li, prelude::*, span, ul, App, C};
+use seed::{attrs, canvas, prelude::*, App};
 use web_sys::HtmlCanvasElement;
 use widgets::{
     rect::{Rect, RectState},
@@ -52,54 +52,13 @@ where
 
 #[wasm_bindgen]
 extern "C" {
-    fn csl(s: &str);
-}
-
-#[wasm_bindgen]
-pub struct Api {
-    name: String,
-    cb: Box<dyn Fn(&str)>,
-}
-
-impl Default for Api {
-    fn default() -> Self {
-        Self {
-            name: String::from(""),
-            cb: Box::new(csl),
-        }
-    }
-}
-
-#[wasm_bindgen]
-impl Api {
-    #[wasm_bindgen(constructor)]
-    pub fn new(name: String) -> Self {
-        Self {
-            name,
-            ..Self::default()
-        }
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn name(&self) -> String {
-        self.name.clone()
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
-    }
-
-    pub fn test(&mut self, name: String) {
-        self.name = name.clone();
-        (self.cb)(&name);
-    }
+    fn update_widget(s: &JsValue);
 }
 
 // --- Settings ---
-pub static POINTER_SIZE: f64 = 11.0;
+pub static POINTER_SIZE: f64 = 8.0;
 pub static RECT_BORDER_WIDTH: f64 = 2.0;
-pub static RECT_ANCHOR_RADIUS: f64 = 5.0;
+pub static RECT_ANCHOR_RADIUS: f64 = 3.0;
 
 // --- Application ---
 pub enum WidgetType {
@@ -129,7 +88,6 @@ pub struct Model {
     canvas: ElRef<HtmlCanvasElement>, // Fluss Canvas TODO Keep the context instead?
     widgets: Vec<Smiley>,             // List of Widgets on Canvas
     ui_state: UiGlobalState,          // UI global state
-    js_api: Api,
 }
 
 // `Msg` describes the different events you can modify state with.
@@ -302,7 +260,7 @@ fn draw(
     let mut ctx = WebRenderContext::new(context, window);
     let cursor = ui_state.cursor;
 
-    ctx.clear(Color::WHITE);
+    ctx.clear(Color::rgb8(0xf5, 0xf5, 0xf5));
 
     // --- Update ---
 
@@ -399,6 +357,9 @@ pub fn view(model: &Model) -> Node<Msg> {
     let mut selected_widget: Option<&Smiley> = None;
     if let Some(select_widget_uuid) = &model.ui_state.select_widget_uuid {
         selected_widget = widgets.iter().find(|w| w.uuid.eq(select_widget_uuid));
+        update_widget(&JsValue::from_serde(&selected_widget).unwrap());
+    } else {
+        update_widget(&JsValue::null());
     }
 
     canvas![
