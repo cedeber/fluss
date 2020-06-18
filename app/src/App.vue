@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import init, { start } from "/pkg/fluss.js";
-import { State, MUTATE_WIDGET } from "./store";
+import { State, MUTATE_WIDGET, MUTATE_API } from "./store";
 import { useStore } from "vuex";
 import Panel from "./components/Panel.vue";
 import Toolbar from "./components/Toolbar.vue";
@@ -30,10 +30,11 @@ export default {
     // Load WASM
     (async function () {
       await init("/pkg/fluss_bg.wasm");
-      const [add_widget] = start();
+      const [add_widget, update_widget] = start();
 
-      store.commit("api", {
+      store.commit(MUTATE_API, {
         add_widget,
+        update_widget,
       });
     })();
   },

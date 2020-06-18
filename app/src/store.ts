@@ -22,12 +22,13 @@ const getters = {};
 
 // --- Mutations: MUTATE ---
 export const MUTATE_WIDGET = "MUTATE_WIDGET";
+export const MUTATE_API = "MUTATE_API";
 
 const mutations = {
   [MUTATE_WIDGET](state: State, payload: Widget) {
     state.currentWidget = payload;
   },
-  api(state: State, payload: any) {
+  [MUTATE_API](state: State, payload: any) {
     state.api = payload;
   },
 };
