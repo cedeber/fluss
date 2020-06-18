@@ -1,19 +1,18 @@
 <template>
   <div class="container">
     <div class="label">{{ label }}</div>
-    <input class="input" type="number" :value="value" pattern="[0-9]*" />
+    <input class="input" type="number" v-model="val" pattern="[0-9]*" />
     <div class="unit">{{ unit }}</div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, watchEffect, computed } from "vue";
 
 interface InputProps {
   label: string;
   unit: string;
   value: number;
-  onChange: Function;
 }
 
 export default {
@@ -24,12 +23,21 @@ export default {
     value: Number,
     onChange: Function,
   },
-  setup(props: InputProps) {
+  setup(props: InputProps, { emit }) {
     // needed because reactivity is not deep
-    const value = ref(props.value);
-    watchEffect(() => (value.value = props.value));
+    // const value = ref(props.value);
+    // watchEffect(() => (value.value = props.value));
 
-    return { ...props, value };
+    const val = computed({
+      get() {
+        return props.value;
+      },
+      set(v) {
+        emit("update:value", v);
+      },
+    });
+
+    return { ...props, val };
   },
 };
 </script>

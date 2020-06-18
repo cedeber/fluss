@@ -3,7 +3,7 @@ use enclose::enc;
 use nalgebra::Point2;
 use piet::{Color, RenderContext};
 use piet_web::WebRenderContext;
-use seed::{attrs, canvas, prelude::*, App};
+use seed::{attrs, canvas, log, prelude::*, App};
 use web_sys::HtmlCanvasElement;
 use widgets::{
     rect::{Rect, RectState},
@@ -33,21 +33,26 @@ pub fn start() -> Box<[JsValue]> {
 }
 
 fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
-    let add_widget = wrap_in_permanent_closure(enc!((app) move |_widget: String| {
-        app.update(Msg::AddWidget)
-    }));
+    let add_widget;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move || {
+            app.update(Msg::AddWidget)
+        })) as Box<dyn FnMut()>);
+        add_widget = closure.as_ref().clone();
+        closure.forget();
+    }
 
-    vec![add_widget].into_boxed_slice()
-}
+    let update_widget;
+    {
+        // geometry: Geometry
+        let closure = Closure::wrap(Box::new(enc!((app) move |uuid: String, geometry: JsValue| {
+            app.update(Msg::UpdateWidget(uuid, geometry))
+        })) as Box<dyn FnMut(String, JsValue)>);
+        update_widget = closure.as_ref().clone();
+        closure.forget();
+    }
 
-fn wrap_in_permanent_closure<T>(f: impl FnMut(T) + 'static) -> JsValue
-where
-    T: wasm_bindgen::convert::FromWasmAbi + 'static,
-{
-    let closure = Closure::new(f);
-    let closure_as_js_value = closure.as_ref().clone();
-    closure.forget();
-    closure_as_js_value
+    vec![add_widget, update_widget].into_boxed_slice()
 }
 
 #[wasm_bindgen]
@@ -100,7 +105,7 @@ pub enum Msg {
     KeyPressed(web_sys::KeyboardEvent),
     WindowResize,
     AddWidget,
-    UpdateWidget(String, Geometry),
+    UpdateWidget(String, JsValue),
     Draw,
 }
 
@@ -113,6 +118,7 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             // (However infinite loops are useful for animations.)
             // orders.after_next_render(|_| Msg::Rendered).skip();
             // TODO Being able to deactivate KeyPressed. Useful when on input.
+            // TODO Check https://github.com/seed-rs/seed/blob/2b134d1de2a8b9aa520d11be6e45eef1e5fcd527/examples/subscribe/src/lib.rs#L15-L18
             if model.event_streams.is_empty() {
                 model.event_streams = vec![
                     orders.stream_with_handle(streams::window_event(Ev::KeyDown, |event| {
@@ -238,7 +244,8 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
         Msg::UpdateWidget(uuid, geometry) => {
             let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&uuid));
             if let Some(widget) = selected_widget {
-                widget.geometry = geometry;
+                log! {geometry}
+                widget.geometry = geometry.as_ref().into_serde().unwrap();
             }
             orders.send_msg(Msg::Draw);
         }
