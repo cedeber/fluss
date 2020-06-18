@@ -9,8 +9,8 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [profile.release]
-lto = true
-opt-level = 's'
+#lto = true
+#opt-level = 's'
 
 [features]
 default = ["console_error_panic_hook", "wee_alloc"]
