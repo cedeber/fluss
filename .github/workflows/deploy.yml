@@ -28,9 +28,7 @@ jobs:
         rm app/public/pkg/.gitignore
         rm app/public/pkg/*.ts
         rm app/public/pkg/*.json
-        rm app/public/pkg/fluss_bg.wasm
         rm app/public/pkg/fluss.js
-        mv app/public/pkg/fluss.wasm app/public/pkg/fluss_bg.wasm
         mv app/public/pkg/fluss.min.js app/public/pkg/fluss.js
     - run: npm install
     - run: npm run build
