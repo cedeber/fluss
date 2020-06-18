@@ -10,18 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/cache@v1
-      with:
-        path: ~/.cargo
-        key: ${{ runner.os }}-cargo
-    - uses: actions/cache@v1
-      with:
-        path: ./wasm/target
-        key: ${{ runner.os }}-target
-    - uses: actions/cache@v1
-      with:
-        path: ./app/node_modules
-        key: ${{ runner.os }}-node
     - uses: actions/setup-node@v1
       with:
         node-version: 12.x
@@ -30,33 +18,25 @@ jobs:
         profile: minimal
         toolchain: stable
         override: true
-    - run: |
-        curl -LJO https://github.com/WebAssembly/binaryen/releases/download/version_94/binaryen-version_94-x86_64-linux.tar.gz
-        tar -zxvf binaryen-version_94-x86_64-linux.tar.gz
-        export PATH=$PATH:`pwd`/binaryen-version_94/
     - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
     - run: npm install --global terser
     - run: |
         cd wasm/
-        wasm-pack build --dev --target web --out-dir ../app/public/pkg/
+        wasm-pack build --target web --out-dir ../app/public/pkg/
+    - run: terser app/public/pkg/fluss.js --output app/public/pkg/fluss.min.js --compress --module --ecma 7
     - run: |
-        cd ../app/
-        wasm-opt -Os -o public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
-    - run: terser public/pkg/fluss.js --output public/pkg/fluss.min.js --compress --module --ecma 7
-    - run: |
-        rm public/pkg/.gitignore
-        rm public/pkg/*.ts
-        rm public/pkg/*.json
-        rm public/pkg/fluss_bg.wasm
-        rm public/pkg/fluss.js
-        mv public/pkg/fluss.wasm public/pkg/fluss_bg.wasm
-        mv public/pkg/fluss.min.js public/pkg/fluss.js
+        rm app/public/pkg/.gitignore
+        rm app/public/pkg/*.ts
+        rm app/public/pkg/*.json
+        rm app/public/pkg/fluss_bg.wasm
+        rm app/public/pkg/fluss.js
+        mv app/public/pkg/fluss.wasm app/public/pkg/fluss_bg.wasm
+        mv app/public/pkg/fluss.min.js app/public/pkg/fluss.js
     - run: npm install
     - run: npm run build
     - run: |
-        cd ../build/
+        cd build/
         echo "beta.eukolia.design" > CNAME
-        cd ..
     - uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
