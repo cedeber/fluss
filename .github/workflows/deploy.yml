@@ -19,17 +19,13 @@ jobs:
         toolchain: stable
         override: true
     - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-    - run: npm install --global terser
     - run: |
         cd wasm/
         wasm-pack build --target web --out-dir ../app/public/pkg/
-    - run: terser app/public/pkg/fluss.js --output app/public/pkg/fluss.min.js --compress --module --ecma 7
     - run: |
         rm app/public/pkg/.gitignore
         rm app/public/pkg/*.ts
         rm app/public/pkg/*.json
-        rm app/public/pkg/fluss.js
-        mv app/public/pkg/fluss.min.js app/public/pkg/fluss.js
     - run: |
         cd app/
         npm install

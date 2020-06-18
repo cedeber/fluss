@@ -29,7 +29,7 @@ export default {
 
     // Load WASM
     (async function () {
-      await init();
+      await init("/pkg/fluss_bg.wasm");
       const [add_widget] = start();
 
       store.commit("api", {
