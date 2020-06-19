@@ -1,8 +1,8 @@
 {
-  "name": "fluss",
+  "name": "eukolia",
   "version": "0.1.0",
   "description": "UI Design Application with Motion",
-  "author": "Cédric Eberhardt <hello+code@cedeber.fr>",
+  "author": "Cédric Eberhardt <hi@eukolia.design>",
   "scripts": {
     "dev": "vite",
     "build": "vite build"

@@ -1,8 +1,8 @@
 [package]
-name = "fluss"
+name = "eukolia"
 version = "0.1.0"
 description = "UI Design Application with Motion"
-authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
+authors = ["Cédric Eberhardt <hi@eukolia.design>"]
 edition = "2018"
 
 [lib]
