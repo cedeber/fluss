@@ -1,9 +1,8 @@
-name: deploy
+name: Pages
 
 on:
   push:
-    branches:
-    - master
+    branches: [ master ]
 
 jobs:
   deploy:
