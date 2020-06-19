@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import init, { start } from "/pkg/fluss.js";
+import init, { start } from "/pkg/eukolia.js";
 import { State, MUTATE_WIDGET, MUTATE_API } from "./store";
 import { useStore } from "vuex";
 import Panel from "./components/Panel.vue";
@@ -29,7 +29,7 @@ export default {
 
     // Load WASM
     (async function () {
-      await init("/pkg/fluss_bg.wasm");
+      await init("/pkg/eukolia_bg.wasm");
       const [activate_events, add_widget, update_widget] = start();
 
       store.commit(MUTATE_API, {
