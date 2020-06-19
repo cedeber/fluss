@@ -10,7 +10,6 @@ use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
 use std::f64;
 use uuid::Uuid;
-use wasm_bindgen::convert::FromWasmAbi;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Geometry {

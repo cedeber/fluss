@@ -30,9 +30,10 @@ export default {
     // Load WASM
     (async function () {
       await init("/pkg/fluss_bg.wasm");
-      const [add_widget, update_widget] = start();
+      const [activate_events, add_widget, update_widget] = start();
 
       store.commit(MUTATE_API, {
+        activate_events,
         add_widget,
         update_widget,
       });

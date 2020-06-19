@@ -13,7 +13,7 @@ export interface Widget {
 
 // --- State ---
 const state: State = {
-  currentWidget: undefined, // for panel
+  currentWidget: null, // for panel
   api: {}, // from wasm
 };
 

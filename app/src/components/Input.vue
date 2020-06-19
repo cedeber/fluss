@@ -1,13 +1,23 @@
 <template>
   <div class="container">
     <div class="label">{{ label }}</div>
-    <input class="input" type="number" v-model="val" pattern="[0-9]*" />
+    <input
+      ref="input"
+      class="input"
+      type="text"
+      v-model="value"
+      v-on:blur="onValid"
+      v-on:change="onValid"
+      v-on:focus="onEnter"
+    />
     <div class="unit">{{ unit }}</div>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, watchEffect, computed } from "vue";
+import { reactive, watchEffect, toRefs, isReactive, ref } from "vue";
+import { useStore } from "vuex";
+import { State } from "../store";
 
 interface InputProps {
   label: string;
@@ -24,20 +34,38 @@ export default {
     onChange: Function,
   },
   setup(props: InputProps, { emit }) {
-    // needed because reactivity is not deep
-    // const value = ref(props.value);
-    // watchEffect(() => (value.value = props.value));
-
-    const val = computed({
-      get() {
-        return props.value;
-      },
-      set(v) {
-        emit("update:value", v);
-      },
+    const input = ref(null);
+    const store = useStore<State>();
+    const state = reactive({
+      value: props.value,
     });
 
-    return { ...props, val };
+    watchEffect(() => {
+      state.value = props.value;
+    });
+
+    function onEnter() {
+      store.state.api.activate_events(false);
+    }
+
+    function onValid(e) {
+      // TODO Support expression
+      // TODO, reactivate wasm JS events (subscribe_events/unsubscribe_events)
+      const val = e.target.value;
+      const num = Number(val);
+
+      if (isNaN(num) || val === "") {
+        // reset
+        state.value = props.value;
+      } else {
+        emit("update:value", num);
+      }
+
+      input.value.blur();
+      store.state.api.activate_events(true);
+    }
+
+    return { ...props, ...toRefs(state), onValid, onEnter, input };
   },
 };
 </script>

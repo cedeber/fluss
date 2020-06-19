@@ -7,7 +7,7 @@ use seed::{attrs, canvas, log, prelude::*, App};
 use web_sys::HtmlCanvasElement;
 use widgets::{
     rect::{Rect, RectState},
-    smiley::{Geometry, Smiley},
+    smiley::Smiley,
     {Draw, RectGeometry, UiGlobalState, WidgetState},
 };
 
@@ -33,6 +33,19 @@ pub fn start() -> Box<[JsValue]> {
 }
 
 fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
+    let activate_events;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move |active: bool| {
+            if active {
+                app.update(Msg::Subscribe)
+            } else {
+                app.update(Msg::Unsubscribe)
+            }
+        })) as Box<dyn FnMut(bool)>);
+        activate_events = closure.as_ref().clone();
+        closure.forget();
+    }
+
     let add_widget;
     {
         let closure = Closure::wrap(Box::new(enc!((app) move || {
@@ -52,7 +65,7 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         closure.forget();
     }
 
-    vec![add_widget, update_widget].into_boxed_slice()
+    vec![activate_events, add_widget, update_widget].into_boxed_slice()
 }
 
 #[wasm_bindgen]
@@ -97,6 +110,8 @@ pub struct Model {
 
 // `Msg` describes the different events you can modify state with.
 pub enum Msg {
+    Subscribe,
+    Unsubscribe,
     Rendered, // DOM Component rendered
     MouseMoved(web_sys::MouseEvent),
     MouseDown(web_sys::MouseEvent),
@@ -119,18 +134,20 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             // orders.after_next_render(|_| Msg::Rendered).skip();
             // TODO Being able to deactivate KeyPressed. Useful when on input.
             // TODO Check https://github.com/seed-rs/seed/blob/2b134d1de2a8b9aa520d11be6e45eef1e5fcd527/examples/subscribe/src/lib.rs#L15-L18
-            if model.event_streams.is_empty() {
-                model.event_streams = vec![
-                    orders.stream_with_handle(streams::window_event(Ev::KeyDown, |event| {
-                        Msg::KeyPressed(event.unchecked_into())
-                    })),
-                    orders.stream_with_handle(streams::window_event(Ev::Resize, |_| {
-                        Msg::WindowResize
-                    })),
-                ];
-            }
-
+            orders.stream(streams::window_event(Ev::Resize, |_| Msg::WindowResize));
+            orders.send_msg(Msg::Subscribe);
             orders.send_msg(Msg::WindowResize);
+        }
+        Msg::Subscribe => {
+            if model.event_streams.is_empty() {
+                model.event_streams = vec![orders
+                    .stream_with_handle(streams::window_event(Ev::KeyDown, |event| {
+                        Msg::KeyPressed(event.unchecked_into())
+                    }))];
+            }
+        }
+        Msg::Unsubscribe => {
+            model.event_streams.clear();
         }
         Msg::MouseMoved(event) => {
             model.ui_state.cursor.previous_position = model.ui_state.cursor.position.clone();
@@ -244,8 +261,12 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
         Msg::UpdateWidget(uuid, geometry) => {
             let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&uuid));
             if let Some(widget) = selected_widget {
-                log! {geometry}
-                widget.geometry = geometry.as_ref().into_serde().unwrap();
+                log! {geometry};
+                if let Ok(geometry) = geometry.as_ref().into_serde() {
+                    widget.geometry = geometry;
+                }
+                // TODO check validity/parse
+                // "1.23".parse::<f64>().is_ok();
             }
             orders.send_msg(Msg::Draw);
         }

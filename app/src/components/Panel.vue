@@ -35,7 +35,6 @@ export default {
         return widget.value?.geometry?.center[0] || 0;
       },
       set(v) {
-        console.log("setX", v);
         store.state.api.update_widget(widget.value.uuid, {
           center: [v, valY.value],
           radius: valR.value,
@@ -48,7 +47,6 @@ export default {
         return widget.value?.geometry?.center[1] || 0;
       },
       set(v) {
-        console.log("setY", v);
         store.state.api.update_widget(widget.value.uuid, {
           center: [valX.value, v],
           radius: valR.value,
@@ -61,7 +59,6 @@ export default {
         return widget.value?.geometry?.radius || 0;
       },
       set(v) {
-        console.log("setR", v);
         store.state.api.update_widget(widget.value.uuid, {
           center: [valX.value, valY.value],
           radius: v,
