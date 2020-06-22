@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, watchEffect, toRefs, isReactive, ref } from "vue";
+import { reactive, watchEffect, toRefs, ref } from "vue";
 import { useStore } from "vuex";
 import { State } from "../store";
 
@@ -78,7 +78,7 @@ export default {
 .input {
   font-size: 11px;
   width: 40px;
-  text-align: right;
+  text-align: center;
   padding: 4px;
   line-height: 1;
   border: 1px solid #cececf;
@@ -89,10 +89,6 @@ export default {
   outline: 0;
   display: flex;
   align-items: center;
-}
-
-.input::-webkit-inner-spin-button {
-  display: none;
 }
 
 .label {
