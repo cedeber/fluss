@@ -26,5 +26,5 @@ piet-web = "0.1.0"
 seed = "0.7.0"
 uuid = { version = "0.8.1", features = ["wasm-bindgen", "v4"] }
 enclose = "1.1.8"
-serde = { version = "1.0.111", features = ["derive"] }
+serde = { version = "1.0.114", features = ["derive"] }
 serde_json = "1.0.55"
