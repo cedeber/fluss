@@ -57,26 +57,55 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
 
     let update_widget;
     {
-        // geometry: Geometry
-        let closure = Closure::wrap(Box::new(enc!((app) move |uuid: String, geometry: JsValue| {
-            app.update(Msg::UpdateWidget(uuid, geometry))
-        })) as Box<dyn FnMut(String, JsValue)>);
+        // state: WidgetState
+        let closure = Closure::wrap(Box::new(enc!((app) move |state: JsValue| {
+            app.update(Msg::UpdateWidget(state))
+        })) as Box<dyn FnMut(JsValue)>);
         update_widget = closure.as_ref().clone();
         closure.forget();
     }
 
-    vec![activate_events, add_widget, update_widget].into_boxed_slice()
+    let select_widget;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move |uuid: Option<String>| {
+            app.update(Msg::SelectWidget(uuid))
+        })) as Box<dyn FnMut(Option<String>)>);
+        select_widget = closure.as_ref().clone();
+        closure.forget();
+    }
+
+    let hover_widget;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move |uuid: Option<String>| {
+            app.update(Msg::HoverWidget(uuid))
+        })) as Box<dyn FnMut(Option<String>)>);
+        hover_widget = closure.as_ref().clone();
+        closure.forget();
+    }
+
+    vec![
+        activate_events,
+        add_widget,
+        update_widget,
+        select_widget,
+        hover_widget,
+    ]
+    .into_boxed_slice()
 }
 
 #[wasm_bindgen]
 extern "C" {
-    fn update_widget(s: &JsValue);
+    fn update_app_state(app_state: &JsValue, widgets: &JsValue);
 }
 
 // --- Settings ---
 pub static POINTER_SIZE: f64 = 8.0;
 pub static RECT_BORDER_WIDTH: f64 = 2.0;
 pub static RECT_ANCHOR_RADIUS: f64 = 3.0;
+
+const WHITE: Color = Color::rgb8(0xFF, 0xFF, 0xFF);
+const BLUE: Color = Color::rgb8(0x00, 0x88, 0xCC);
+const PINK: Color = Color::rgb8(0xB8, 0x2E, 0xE5);
 
 // --- Application ---
 pub enum WidgetType {
@@ -91,7 +120,7 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
     // TODO (later) Serialize (serde) for loading/saving
     model.widgets = vec![
         Smiley::new("Smiley Pro", (275.0, 300.0), 150.0),
-        Smiley::new("Smiley", (75.0, 110.0), 50.0),
+        Smiley::new("Smiley", (475.0, 110.0), 50.0),
         Smiley::new("Smiley Mini", (550.0, 165.0), 30.0),
     ];
 
@@ -103,9 +132,9 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
 pub struct Model {
     event_streams: Vec<StreamHandle>, // Window Events
     key_code: String,                 // Keyboard key pressed
-    canvas: ElRef<HtmlCanvasElement>, // Fluss Canvas TODO Keep the context instead?
-    widgets: Vec<Smiley>,             // List of Widgets on Canvas
-    ui_state: UiGlobalState,          // UI global state
+    canvas: ElRef<HtmlCanvasElement>, // Fluss Canvas. Keep the context instead?
+    widgets: Vec<Smiley>,
+    app_state: UiGlobalState, // UI global state
 }
 
 // `Msg` describes the different events you can modify state with.
@@ -120,7 +149,9 @@ pub enum Msg {
     KeyPressed(web_sys::KeyboardEvent),
     WindowResize,
     AddWidget,
-    UpdateWidget(String, JsValue),
+    UpdateWidget(JsValue), // WidgetState
+    SelectWidget(Option<String>),
+    HoverWidget(Option<String>),
     Draw,
 }
 
@@ -132,7 +163,6 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             // We want to call `.skip` to prevent infinite loop.
             // (However infinite loops are useful for animations.)
             // orders.after_next_render(|_| Msg::Rendered).skip();
-            // TODO Being able to deactivate KeyPressed. Useful when on input.
             // TODO Check https://github.com/seed-rs/seed/blob/2b134d1de2a8b9aa520d11be6e45eef1e5fcd527/examples/subscribe/src/lib.rs#L15-L18
             orders.stream(streams::window_event(Ev::Resize, |_| Msg::WindowResize));
             orders.send_msg(Msg::Subscribe);
@@ -150,38 +180,38 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             model.event_streams.clear();
         }
         Msg::MouseMoved(event) => {
-            model.ui_state.cursor.previous_position = model.ui_state.cursor.position.clone();
-            model.ui_state.cursor.position = Some(Point2::new(
+            model.app_state.cursor.previous_position = model.app_state.cursor.position.clone();
+            model.app_state.cursor.position = Some(Point2::new(
                 event.client_x().into(),
                 event.client_y().into(),
             ));
             orders.send_msg(Msg::Draw);
         }
         Msg::MouseDown(event) => {
-            model.ui_state.cursor.down_start_position = Some(Point2::new(
+            model.app_state.cursor.down_start_position = Some(Point2::new(
                 event.client_x().into(),
                 event.client_y().into(),
             ));
 
             // If anchor is hovered, we keep the current selection uuid
-            if !model.ui_state.cursor.is_active {
-                model.ui_state.select_widget_uuid = None;
+            if !model.app_state.cursor.is_active {
+                model.app_state.active_widget_uuid = None;
             }
 
             orders.send_msg(Msg::Draw);
         }
         Msg::MouseUp => {
-            model.ui_state.cursor.down_start_position = None;
+            model.app_state.cursor.down_start_position = None;
             orders.send_msg(Msg::Draw);
         }
         Msg::MouseOut => {
-            model.ui_state.cursor.position = None;
+            model.app_state.cursor.position = None;
             orders.send_msg(Msg::Draw);
         }
         Msg::KeyPressed(ev) => {
             model.key_code = ev.code();
 
-            if let Some(select_widget_uuid) = &model.ui_state.select_widget_uuid {
+            if let Some(select_widget_uuid) = &model.app_state.active_widget_uuid {
                 let selected_widget = model
                     .widgets
                     .iter_mut()
@@ -192,31 +222,19 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
 
                     match model.key_code.as_str() {
                         "ArrowUp" => {
-                            widget.geometry.center = Point2::new(
-                                widget.geometry.center.x,
-                                widget.geometry.center.y - offset,
-                            );
+                            widget.geometry.y -= offset;
                             orders.send_msg(Msg::Draw);
                         }
                         "ArrowDown" => {
-                            widget.geometry.center = Point2::new(
-                                widget.geometry.center.x,
-                                widget.geometry.center.y + offset,
-                            );
+                            widget.geometry.y += offset;
                             orders.send_msg(Msg::Draw);
                         }
                         "ArrowLeft" => {
-                            widget.geometry.center = Point2::new(
-                                widget.geometry.center.x - offset,
-                                widget.geometry.center.y,
-                            );
+                            widget.geometry.x -= offset;
                             orders.send_msg(Msg::Draw);
                         }
                         "ArrowRight" => {
-                            widget.geometry.center = Point2::new(
-                                widget.geometry.center.x + offset,
-                                widget.geometry.center.y,
-                            );
+                            widget.geometry.x += offset;
                             orders.send_msg(Msg::Draw);
                         }
                         _ => {}
@@ -231,18 +249,18 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
 
                 if let Ok(width) = window.inner_width() {
                     let width = width.as_f64().unwrap();
-                    model.ui_state.canvas_geometry = RectGeometry {
+                    model.app_state.canvas_geometry = RectGeometry {
                         width,
-                        ..model.ui_state.canvas_geometry
+                        ..model.app_state.canvas_geometry
                     };
                     canvas.set_width(width as u32);
                 }
 
                 if let Ok(height) = window.inner_height() {
                     let height = height.as_f64().unwrap();
-                    model.ui_state.canvas_geometry = RectGeometry {
+                    model.app_state.canvas_geometry = RectGeometry {
                         height,
-                        ..model.ui_state.canvas_geometry
+                        ..model.app_state.canvas_geometry
                     };
                     canvas.set_height(height as u32);
                 }
@@ -258,27 +276,38 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             ));
             orders.send_msg(Msg::Draw);
         }
-        Msg::UpdateWidget(uuid, geometry) => {
-            let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&uuid));
-            if let Some(widget) = selected_widget {
-                log! {geometry};
-                if let Ok(geometry) = geometry.as_ref().into_serde() {
-                    widget.geometry = geometry;
-                }
-                // TODO check validity/parse
-                // "1.23".parse::<f64>().is_ok();
-            }
+        Msg::SelectWidget(uuid) => {
+            model.app_state.active_widget_uuid = uuid;
             orders.send_msg(Msg::Draw);
         }
+        Msg::HoverWidget(uuid) => {
+            model.app_state.highlight_widget_uuid = uuid;
+            orders.send_msg(Msg::Draw);
+        }
+        Msg::UpdateWidget(state) => {
+            // state = WidgetState
+            let serialized_state: serde_json::Result<Smiley> = state.as_ref().into_serde();
+            if let Ok(state) = serialized_state {
+                let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&state.uuid));
+                if let Some(widget) = selected_widget {
+                    // log! {state.geometry};
+                    widget.geometry = state.geometry;
+                    // TODO initial_geometry?
+                    // TODO check validity/parse
+                    // "1.23".parse::<f64>().is_ok();
+                }
+                orders.send_msg(Msg::Draw);
+            }
+        }
         Msg::Draw => {
-            draw(&model.canvas, &mut model.ui_state, &mut model.widgets);
+            draw(&model.canvas, &mut model.app_state, &mut model.widgets);
         }
     }
 }
 
 fn draw(
     canvas: &ElRef<HtmlCanvasElement>,
-    mut ui_state: &mut UiGlobalState,
+    mut app_state: &mut UiGlobalState,
     widgets: &mut [Smiley],
 ) {
     // TODO It looks un-optimized to do that?
@@ -286,17 +315,19 @@ fn draw(
     let canvas = canvas.get().expect("get canvas element");
     let context = seed::canvas_context_2d(&canvas);
     let mut ctx = WebRenderContext::new(context, window);
-    let cursor = ui_state.cursor;
+    let cursor = app_state.cursor;
 
-    ctx.clear(Color::rgb8(0xf5, 0xf5, 0xf5));
+    ctx.clear(Color::rgb8(0xf9, 0xf9, 0xf9));
 
     // --- Update ---
+    let previously_hovered_widget_uuid = &app_state.pointer_widget_uuid;
 
     // Updated Widgets
     let mut widgets_states: Vec<WidgetState> = vec![];
 
-    for widget in widgets.iter_mut() {
-        widgets_states.push(widget.update(&mut ui_state));
+    for widget in widgets.iter_mut().rev() {
+        // FIXME needed?
+        widgets_states.push(widget.update(&mut app_state));
     }
 
     // Update Rects around the widgets
@@ -306,23 +337,33 @@ fn draw(
     for state in widgets_states.iter() {
         let mut do_not_hover = false;
 
-        if let Some(uuid) = &ui_state.select_widget_uuid {
+        if let Some(uuid) = &app_state.active_widget_uuid {
             if uuid.eq(&state.uuid) {
                 selected_geometry = Some(state);
                 do_not_hover = true;
             }
         }
 
+        if let Some(uuid) = &app_state.highlight_widget_uuid {
+            if !do_not_hover && uuid.eq(&state.uuid) {
+                hovered_geometry = Some(state);
+            }
+        }
+
         if state.selected {
             selected_geometry = Some(state);
-            ui_state.select_widget_uuid = Some(String::from(&state.uuid));
+            app_state.active_widget_uuid = Some(String::from(&state.uuid));
             do_not_hover = true;
         }
 
         if state.hovered {
             hovered_geometry = if do_not_hover { None } else { Some(state) };
-            ui_state.hover_widget_uuid = Some(String::from(&state.uuid));
+            app_state.pointer_widget_uuid = Some(String::from(&state.uuid));
         }
+    }
+
+    if hovered_geometry.is_none() {
+        app_state.pointer_widget_uuid = None;
     }
 
     // Update selection Rect
@@ -330,9 +371,9 @@ fn draw(
 
     if let Some(state) = selected_geometry {
         let mut rect = Rect::new(state.geometry, RectState::Select);
-        let change_state = rect.update(&mut ui_state);
+        let change_state = rect.update(&mut app_state);
 
-        if let Some(select_widget_uuid) = &ui_state.select_widget_uuid {
+        if let Some(select_widget_uuid) = &app_state.active_widget_uuid {
             let selected_widget = widgets.iter_mut().find(|w| w.uuid.eq(select_widget_uuid));
 
             if let Some(widget) = selected_widget {
@@ -358,37 +399,39 @@ fn draw(
     // --- Draw ---
 
     // Draw all widgets
-    for widget in widgets.iter_mut() {
-        widget.draw(&mut ctx, &ui_state);
+    for widget in widgets.iter_mut().rev() {
+        // FIXME: Used returned values to update app_state
+        widget.draw(&mut ctx, &app_state);
     }
 
     // Draw the selection Rect
     if let Some(rect) = selection_rect {
-        rect.draw(&mut ctx, &ui_state);
+        rect.draw(&mut ctx, &app_state);
     }
 
     // Draw the hover Rect (empty update)
     if let Some(state) = hovered_geometry {
         if cursor.down_start_position.is_none() {
             let rect = Rect::new(state.geometry, RectState::Hover);
-            rect.draw(&mut ctx, &ui_state);
+            rect.draw(&mut ctx, &app_state);
         }
     }
 
     // Draw the cursor
-    cursor.draw(&mut ctx, &ui_state);
+    cursor.draw(&mut ctx, &app_state);
+
+    // Clean
+    // log! {app_state.highlight_widget_uuid};
+    app_state.highlight_widget_uuid = None;
 }
 
 // `view` describes what to display.
 pub fn view(model: &Model) -> Node<Msg> {
-    let widgets = &model.widgets;
-    let mut selected_widget: Option<&Smiley> = None;
-    if let Some(select_widget_uuid) = &model.ui_state.select_widget_uuid {
-        selected_widget = widgets.iter().find(|w| w.uuid.eq(select_widget_uuid));
-        update_widget(&JsValue::from_serde(&selected_widget).unwrap());
-    } else {
-        update_widget(&JsValue::null());
-    }
+    // JavaScript
+    update_app_state(
+        &JsValue::from_serde(&model.app_state).unwrap(),
+        &JsValue::from_serde(&model.widgets).unwrap(),
+    );
 
     canvas![
         el_ref(&model.canvas),

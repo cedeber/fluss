@@ -7,17 +7,19 @@ use nalgebra::geometry::Point2;
 use ncollide2d::bounding_volume::{BoundingSphere, BoundingVolume};
 use piet::{
     kurbo::{Circle, Line, Rect as Rectangle},
-    Color, RenderContext, StrokeStyle,
+    RenderContext, StrokeStyle,
 };
 use piet_web::WebRenderContext;
+use seed::log;
+use serde::{Deserialize, Serialize};
 
 pub enum RectState {
     Hover,
     Select,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-enum Anchor {
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+pub enum Anchor {
     None,
     TopLeft,
     TopRight,
@@ -81,8 +83,8 @@ impl Draw<GeometryChangeState> for Rect {
 
 impl Rect {
     fn draw_hover(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState) {
-        let viewport_width = ui_state.canvas_geometry.width;
-        let viewport_height = ui_state.canvas_geometry.width;
+        // let viewport_width = ui_state.canvas_geometry.width;
+        // let viewport_height = ui_state.canvas_geometry.width;
 
         // Rectangle
         let brush = context.solid_brush(BLUE);
@@ -182,17 +184,46 @@ impl Rect {
 
         let cursor_is_active = self.active_anchor != Anchor::None;
 
-        if let Some(_pos) = &ui_state.cursor.down_start_position {
+        if ui_state.cursor.down_start_position.is_some() {
             if ui_state.cursor.is_active || cursor_is_active {
+                if self.active_anchor != Anchor::None {
+                    ui_state.cursor.active_anchor = self.active_anchor.clone();
+                }
+
                 if let Some(cursor_position) = &ui_state.cursor.position {
                     if let Some(cursor_previous_position) = &ui_state.cursor.previous_position {
-                        geometry_state.geometry.x = cursor_position.x - cursor_previous_position.x;
-                        geometry_state.geometry.y = cursor_position.y - cursor_previous_position.y;
+                        let x = cursor_position.x - cursor_previous_position.x;
+                        let y = cursor_position.y - cursor_previous_position.y;
+
+                        match ui_state.cursor.active_anchor {
+                            Anchor::TopLeft => {
+                                geometry_state.geometry.x = x;
+                                geometry_state.geometry.y = y;
+                                geometry_state.geometry.width = -x;
+                                geometry_state.geometry.height = -y;
+                            }
+                            Anchor::TopRight => {
+                                geometry_state.geometry.y = y;
+                                geometry_state.geometry.width = x;
+                                geometry_state.geometry.height = -y;
+                            }
+                            Anchor::BottomRight => {
+                                geometry_state.geometry.width = x;
+                                geometry_state.geometry.height = y;
+                            }
+                            Anchor::BottomLeft => {
+                                geometry_state.geometry.x = x;
+                                geometry_state.geometry.width = -x;
+                                geometry_state.geometry.height = y;
+                            }
+                            _ => {}
+                        }
                     }
                 }
                 ui_state.cursor.is_active = true;
             }
         } else {
+            ui_state.cursor.active_anchor = Anchor::None;
             ui_state.cursor.is_active = cursor_is_active;
         }
 

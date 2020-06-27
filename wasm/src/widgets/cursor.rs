@@ -1,6 +1,6 @@
 use crate::widgets::GeometryChangeState;
 use crate::{
-    widgets::{Draw, UiGlobalState},
+    widgets::{rect::Anchor, Draw, UiGlobalState},
     POINTER_SIZE,
 };
 use nalgebra::Point2;
@@ -9,14 +9,28 @@ use piet::{
     Color, RenderContext,
 };
 use piet_web::WebRenderContext;
+use serde::{Deserialize, Serialize};
 use std::f64;
 
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Cursor {
     pub position: Option<Point2<f64>>,
     pub previous_position: Option<Point2<f64>>,
     pub down_start_position: Option<Point2<f64>>,
     pub is_active: bool,
+    pub active_anchor: Anchor,
+}
+
+impl Default for Cursor {
+    fn default() -> Self {
+        Self {
+            position: None,
+            previous_position: None,
+            down_start_position: None,
+            is_active: false,
+            active_anchor: Anchor::None,
+        }
+    }
 }
 
 impl Draw<()> for Cursor {

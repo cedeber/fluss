@@ -24,9 +24,9 @@
 
     --text-color: #424242;
     --icon-color: #606060;
-    --canvas-background: #F9F9F9;
-    --panel-background: #FAFAFA;
-    --border-color: #D0D0D0;
+    --canvas-background: rgb(249, 249, 249);
+    --panel-background: rgb(242, 242, 242);
+    --border-color: rgb(208, 208, 208);
 }
 
 /* --- Fonts --- */
