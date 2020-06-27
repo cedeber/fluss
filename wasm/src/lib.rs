@@ -269,11 +269,14 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             }
         }
         Msg::AddWidget => {
-            model.widgets.push(Smiley::new(
-                format!("New Smiley {}", model.widgets.len() + 1).as_ref(),
-                (575.0, 300.0),
-                63.0,
-            ));
+            model.widgets.insert(
+                0,
+                Smiley::new(
+                    format!("New Smiley {}", model.widgets.len() + 1).as_ref(),
+                    (575.0, 300.0),
+                    63.0,
+                ),
+            );
             orders.send_msg(Msg::Draw);
         }
         Msg::SelectWidget(uuid) => {
