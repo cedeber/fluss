@@ -1,23 +1,25 @@
 use super::RectGeometry;
 use crate::{
     widgets::{Draw, GeometryChangeState, UiGlobalState},
-    POINTER_SIZE, RECT_ANCHOR_RADIUS, RECT_BORDER_WIDTH,
+    BLUE, PINK, POINTER_SIZE, RECT_ANCHOR_RADIUS, RECT_BORDER_WIDTH, WHITE,
 };
 use nalgebra::geometry::Point2;
 use ncollide2d::bounding_volume::{BoundingSphere, BoundingVolume};
 use piet::{
     kurbo::{Circle, Line, Rect as Rectangle},
-    Color, RenderContext, StrokeStyle,
+    RenderContext, StrokeStyle,
 };
 use piet_web::WebRenderContext;
+use seed::log;
+use serde::{Deserialize, Serialize};
 
 pub enum RectState {
     Hover,
     Select,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-enum Anchor {
+#[derive(Debug, Copy, Clone, PartialEq, Serialize, Deserialize)]
+pub enum Anchor {
     None,
     TopLeft,
     TopRight,
@@ -81,11 +83,11 @@ impl Draw<GeometryChangeState> for Rect {
 
 impl Rect {
     fn draw_hover(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState) {
-        let viewport_width = ui_state.canvas_geometry.width;
-        let viewport_height = ui_state.canvas_geometry.width;
+        // let viewport_width = ui_state.canvas_geometry.width;
+        // let viewport_height = ui_state.canvas_geometry.width;
 
         // Rectangle
-        let brush = context.solid_brush(Color::rgb8(0x00, 0x88, 0xCC));
+        let brush = context.solid_brush(BLUE);
         context.stroke(
             Rectangle::new(
                 self.properties.border_left,
@@ -98,50 +100,50 @@ impl Rect {
         );
 
         // Stroked lines
-        let mut line_stroke = StrokeStyle::new();
-        line_stroke.set_dash(vec![5.0, 3.0], 0.0);
+        // let mut line_stroke = StrokeStyle::new();
+        // line_stroke.set_dash(vec![5.0, 3.0], 0.0);
 
-        let brush = context.solid_brush(Color::rgba8(0x00, 0x88, 0xCC, 0x77));
+        // let brush = context.solid_brush(BLUE);
 
-        context.stroke_styled(
-            Line::new(
-                (self.properties.line_left, 0.0),
-                (self.properties.line_left, viewport_height),
-            ),
-            &brush,
-            1.,
-            &line_stroke,
-        );
+        // context.stroke_styled(
+        //     Line::new(
+        //         (self.properties.line_left, 0.0),
+        //         (self.properties.line_left, viewport_height),
+        //     ),
+        //     &brush,
+        //     1.,
+        //     &line_stroke,
+        // );
 
-        context.stroke_styled(
-            Line::new(
-                (0.0, self.properties.line_top),
-                (viewport_width, self.properties.line_top),
-            ),
-            &brush,
-            1.,
-            &line_stroke,
-        );
+        // context.stroke_styled(
+        //     Line::new(
+        //         (0.0, self.properties.line_top),
+        //         (viewport_width, self.properties.line_top),
+        //     ),
+        //     &brush,
+        //     1.,
+        //     &line_stroke,
+        // );
 
-        context.stroke_styled(
-            Line::new(
-                (self.properties.line_right, 0.0),
-                (self.properties.line_right, viewport_height),
-            ),
-            &brush,
-            1.,
-            &line_stroke,
-        );
+        // context.stroke_styled(
+        //     Line::new(
+        //         (self.properties.line_right, 0.0),
+        //         (self.properties.line_right, viewport_height),
+        //     ),
+        //     &brush,
+        //     1.,
+        //     &line_stroke,
+        // );
 
-        context.stroke_styled(
-            Line::new(
-                (0.0, self.properties.line_bottom),
-                (viewport_width, self.properties.line_bottom),
-            ),
-            &brush,
-            1.,
-            &line_stroke,
-        );
+        // context.stroke_styled(
+        //     Line::new(
+        //         (0.0, self.properties.line_bottom),
+        //         (viewport_width, self.properties.line_bottom),
+        //     ),
+        //     &brush,
+        //     1.,
+        //     &line_stroke,
+        // );
     }
 
     fn update_select(&mut self, ui_state: &mut UiGlobalState) -> GeometryChangeState {
@@ -182,17 +184,46 @@ impl Rect {
 
         let cursor_is_active = self.active_anchor != Anchor::None;
 
-        if let Some(_pos) = &ui_state.cursor.down_start_position {
+        if ui_state.cursor.down_start_position.is_some() {
             if ui_state.cursor.is_active || cursor_is_active {
+                if self.active_anchor != Anchor::None {
+                    ui_state.cursor.active_anchor = self.active_anchor.clone();
+                }
+
                 if let Some(cursor_position) = &ui_state.cursor.position {
                     if let Some(cursor_previous_position) = &ui_state.cursor.previous_position {
-                        geometry_state.geometry.x = cursor_position.x - cursor_previous_position.x;
-                        geometry_state.geometry.y = cursor_position.y - cursor_previous_position.y;
+                        let x = cursor_position.x - cursor_previous_position.x;
+                        let y = cursor_position.y - cursor_previous_position.y;
+
+                        match ui_state.cursor.active_anchor {
+                            Anchor::TopLeft => {
+                                geometry_state.geometry.x = x;
+                                geometry_state.geometry.y = y;
+                                geometry_state.geometry.width = -x;
+                                geometry_state.geometry.height = -y;
+                            }
+                            Anchor::TopRight => {
+                                geometry_state.geometry.y = y;
+                                geometry_state.geometry.width = x;
+                                geometry_state.geometry.height = -y;
+                            }
+                            Anchor::BottomRight => {
+                                geometry_state.geometry.width = x;
+                                geometry_state.geometry.height = y;
+                            }
+                            Anchor::BottomLeft => {
+                                geometry_state.geometry.x = x;
+                                geometry_state.geometry.width = -x;
+                                geometry_state.geometry.height = y;
+                            }
+                            _ => {}
+                        }
                     }
                 }
                 ui_state.cursor.is_active = true;
             }
         } else {
+            ui_state.cursor.active_anchor = Anchor::None;
             ui_state.cursor.is_active = cursor_is_active;
         }
 
@@ -205,7 +236,7 @@ impl Rect {
         let active_anchor = self.active_anchor;
 
         // Rectangle
-        let brush = context.solid_brush(Color::rgb8(0xAF, 0x40, 0xFF));
+        let brush = context.solid_brush(PINK);
         context.stroke(
             Rectangle::new(
                 self.properties.border_left,
@@ -218,8 +249,8 @@ impl Rect {
         );
 
         // Anchors
-        let fill_brush = context.solid_brush(Color::rgb8(0xFF, 0xFF, 0xFF));
-        let fill_brush_active = context.solid_brush(Color::rgb8(0xAF, 0x40, 0xFF));
+        let fill_brush = context.solid_brush(WHITE);
+        let fill_brush_active = context.solid_brush(PINK);
 
         context.fill(
             Circle::new(
@@ -304,7 +335,7 @@ impl Rect {
         // Stroked lines
         let mut line_stroke = StrokeStyle::new();
         line_stroke.set_dash(vec![5.0, 3.0], 0.0);
-        let brush = context.solid_brush(Color::rgba8(0xAF, 0x40, 0xFF, 0x77));
+        let brush = context.solid_brush(PINK);
 
         context.stroke_styled(
             Line::new(

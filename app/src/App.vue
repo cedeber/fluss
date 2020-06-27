@@ -1,41 +1,49 @@
 <template>
   <Toolbar />
+  <Layers />
   <Panel />
   <div id="wasm" />
 </template>
 
 <script lang="ts">
 import init, { start } from "/pkg/eukolia.js";
-import { State, MUTATE_WIDGET, MUTATE_API } from "./store";
+import { State, MUTATE_WIDGET, MUTATE_API, MUTATE_APP_STATE } from "./store";
 import { useStore } from "vuex";
 import Panel from "./components/Panel.vue";
 import Toolbar from "./components/Toolbar.vue";
+import Layers from "./components/Layers.vue";
 
 export default {
   components: {
     Panel,
     Toolbar,
+    Layers,
   },
   mounted() {
     const store = useStore<State>();
 
-    function updateWidget(payload: any) {
-      // console.log("update_widget", payload);
+    // TODO deprecate
+    (window as any).update_widget_panel = function updateWidgetPanel(payload: any) {
+      // console.log("update_widget_panel", payload);
       store.commit(MUTATE_WIDGET, payload);
-    }
+    };
 
-    // Available for WASM
-    window.update_widget = updateWidget;
+    (window as any).update_app_state = function updateAppState(app_state, widgets) {
+      // console.log("update", payload);
+      store.commit(MUTATE_APP_STATE, { app_state, widgets });
+    };
 
     // Load WASM
     (async function () {
       await init("/pkg/eukolia_bg.wasm");
-      const [activate_events, add_widget, update_widget] = start();
+      const [activate_events, add_widget, update_widget, select_widget, hover_widget] = start();
 
       store.commit(MUTATE_API, {
         activate_events,
         add_widget,
         update_widget,
+        select_widget,
+        hover_widget,
       });
     })();
   },
