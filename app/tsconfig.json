@@ -17,6 +17,6 @@
     "strict": true,
     "target": "es2017"
   },
-  "include": ["public/pkg/fluss.d.ts"],
+  "include": ["public/pkg/eukolia.d.ts", "public/pkg/eukolia_bg.d.ts"],
   "exclude": ["node_modules"]
 }
