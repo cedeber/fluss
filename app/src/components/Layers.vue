@@ -36,7 +36,7 @@ export default {
     }
 
     function onHover(uuid: string) {
-      console.log("hover", uuid);
+      // console.log("hover", uuid);
       store.state.api.hover_widget(uuid);
     }
 
