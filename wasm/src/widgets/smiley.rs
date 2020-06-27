@@ -47,9 +47,7 @@ impl Smiley {
 impl Draw<WidgetState> for Smiley {
     fn update(&mut self, ui_state: &mut UiGlobalState) -> WidgetState {
         // Geometry
-        let radius = self.geometry.width.floor() / 2.;
-        let x = self.geometry.x + radius;
-        let y = self.geometry.y + radius;
+        let (x, y, radius) = get_widget_geometry(&self.geometry);
 
         // State
         let mut state = WidgetState::default();
@@ -74,14 +72,8 @@ impl Draw<WidgetState> for Smiley {
         }
 
         if let Some(pos) = &ui_state.cursor.down_start_position {
-            let radius = self.initial_geometry.width / 2.;
-            let mousedown_widget_bounding = BoundingSphere::new(
-                Point2::new(
-                    self.initial_geometry.x + radius,
-                    self.initial_geometry.y + radius,
-                ),
-                radius,
-            );
+            let (x, y, radius) = get_widget_geometry(&self.initial_geometry);
+            let mousedown_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
             let initial_cursor_bounding = BoundingSphere::new(pos.clone(), 1.0);
 
             let is_initial_mouse_over =
@@ -130,9 +122,7 @@ impl Draw<WidgetState> for Smiley {
     }
 
     fn draw(&self, context: &mut WebRenderContext, _ui_state: &UiGlobalState) {
-        let radius = (self.geometry.width / 2.).min(self.geometry.height / 2.);
-        let x = self.geometry.x + radius + (self.geometry.width / 2. - radius);
-        let y = self.geometry.y + radius + (self.geometry.height / 2. - radius);
+        let (x, y, radius) = get_widget_geometry(&self.geometry);
 
         let stroke_brush = context.solid_brush(Color::rgb8(0x8b, 0x69, 0x14));
         let fill_brush = context.solid_brush(Color::rgb8(0xff, 0xd7, 0x00));
@@ -166,4 +156,12 @@ impl Draw<WidgetState> for Smiley {
         let eye_x = (x + radius * 0.3).floor();
         context.stroke(Circle::new((eye_x, eye_y), eye_radius), &stroke_brush, 2.0);
     }
+}
+
+fn get_widget_geometry(geometry: &RectGeometry) -> (f64, f64, f64) {
+    let radius = (geometry.width / 2.).min(geometry.height / 2.);
+    let x = geometry.x + radius + (geometry.width / 2. - radius);
+    let y = geometry.y + radius + (geometry.height / 2. - radius);
+
+    (x, y, radius)
 }
