@@ -1,3 +1,4 @@
+use crate::widgets::smiley::Smiley;
 use cursor::Cursor;
 use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
@@ -34,14 +35,22 @@ pub struct WidgetState {
 
 #[derive(Debug, Default, Clone)]
 pub struct GeometryChangeState {
-    pub geometry: RectGeometry,
+    pub geometry: RectGeometry, // TODO: save in State? Mutate Widget?
 }
 
 // --- UI State ---
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct UiGlobalState {
     pub cursor: Cursor, // Mouse Cursor on Canvas
     pub canvas_geometry: RectGeometry,
-    pub hover_widget_uuid: Option<String>,
-    pub select_widget_uuid: Option<String>,
+    pub active_widget_uuid: Option<String>,
+    pub pointer_widget_uuid: Option<String>, // from mouse, during draw loop
+    pub highlight_widget_uuid: Option<String>, // from UI layers
+}
+
+// --- Other ---
+#[derive(Default, Serialize, Deserialize)]
+pub struct FrontEnd {
+    widgets: Vec<Smiley>,
+    ui_state: UiGlobalState,
 }

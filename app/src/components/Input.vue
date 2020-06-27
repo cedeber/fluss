@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, watchEffect, toRefs, ref } from "vue";
+import { reactive, watchEffect, toRefs, ref, computed } from "vue";
 import { useStore } from "vuex";
 import { State } from "../store";
 
@@ -73,33 +73,28 @@ export default {
 <style scoped>
 .container {
   display: flex;
+  align-items: baseline;
+  border: 1px solid var(--border-color);
+  background: white;
+  border-radius: 4px;
 }
 
 .input {
   font-size: 11px;
   width: 40px;
-  text-align: center;
+  text-align: right;
   padding: 4px;
-  line-height: 1;
-  border: 1px solid #cececf;
-  border-left: 0;
-  background: white;
   -moz-appearance: textfield;
   margin: 0;
   outline: 0;
-  display: flex;
-  align-items: center;
+  border-right: 1px solid var(--border-color);
 }
 
 .label {
   font-size: 11px;
-  text-align: right;
-  padding: 4px 0 4px 4px;
   line-height: 1;
-  border-radius: 2px 0 0 2px;
-  border: 1px solid #cececf;
-  border-right: 0;
-  background: white;
+  text-align: right;
+  padding-right: 4px;
   color: #42434495;
   width: 20px;
 }
@@ -107,14 +102,9 @@ export default {
 .unit {
   font-size: 11px;
   text-align: left;
-  padding: 4px;
+  padding-left: 4px;
   line-height: 1;
   color: #42434495;
-  border: 1px solid #cececf;
-  border-left: 0;
-  border-radius: 0 2px 2px 0;
   width: 22px;
-  display: flex;
-  align-items: center;
 }
 </style>

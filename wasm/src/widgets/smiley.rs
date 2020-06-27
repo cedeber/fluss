@@ -8,6 +8,7 @@ use piet::{
 };
 use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
+use std::cmp::min;
 use std::f64;
 use uuid::Uuid;
 
@@ -19,26 +20,26 @@ pub struct Geometry {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Smiley {
-    pub geometry: Geometry,
     pub name: String,
     pub uuid: String,
-    initial_geometry: Geometry,
-    state: WidgetState,
+    pub geometry: RectGeometry,
+    initial_geometry: RectGeometry,
 }
 
 impl Smiley {
     pub(crate) fn new(name: &str, center: (f64, f64), radius: f64) -> Self {
-        let geometry = Geometry {
-            center: Point2::new(center.0, center.1),
-            radius,
+        let geometry = RectGeometry {
+            x: center.0 - radius,
+            y: center.1 - radius,
+            width: radius * 2.,
+            height: radius * 2.,
         };
 
         Smiley {
-            geometry: geometry.clone(),
             name: String::from(name),
             uuid: Uuid::new_v4().to_string(),
+            geometry: geometry.clone(),
             initial_geometry: geometry,
-            state: WidgetState::default(),
         }
     }
 }
@@ -46,9 +47,9 @@ impl Smiley {
 impl Draw<WidgetState> for Smiley {
     fn update(&mut self, ui_state: &mut UiGlobalState) -> WidgetState {
         // Geometry
-        let radius = self.geometry.radius.floor();
-        let x = self.geometry.center.x;
-        let y = self.geometry.center.y;
+        let radius = self.geometry.width.floor() / 2.;
+        let x = self.geometry.x + radius;
+        let y = self.geometry.y + radius;
 
         // State
         let mut state = WidgetState::default();
@@ -67,16 +68,17 @@ impl Draw<WidgetState> for Smiley {
         }
 
         // Selected
-        if let Some(state_uuid) = &ui_state.select_widget_uuid {
+        if let Some(state_uuid) = &ui_state.active_widget_uuid {
             // Set selected if it was already selected
             state.selected = self.uuid.eq(state_uuid);
         }
 
         if let Some(pos) = &ui_state.cursor.down_start_position {
+            let radius = self.initial_geometry.width / 2.;
             let mousedown_widget_bounding = BoundingSphere::new(
                 Point2::new(
-                    self.initial_geometry.center.x,
-                    self.initial_geometry.center.y,
+                    self.initial_geometry.x + radius,
+                    self.initial_geometry.y + radius,
                 ),
                 radius,
             );
@@ -89,45 +91,48 @@ impl Draw<WidgetState> for Smiley {
                 state.selected = true;
 
                 if let Some(cursor_position) = &ui_state.cursor.position {
-                    if let Some(uuid) = &ui_state.select_widget_uuid {
+                    if let Some(uuid) = &ui_state.active_widget_uuid {
                         if self.uuid == *uuid {
-                            self.geometry.center = Point2::new(
-                                self.initial_geometry.center.x + (cursor_position.x - pos.x),
-                                self.initial_geometry.center.y + (cursor_position.y - pos.y),
-                            );
+                            self.geometry.x = self.initial_geometry.x + (cursor_position.x - pos.x);
+                            self.geometry.y = self.initial_geometry.y + (cursor_position.y - pos.y);
                         }
                     }
                 }
             }
         } else {
             // mouseout or mouseup
-            self.initial_geometry.center = self.geometry.center.clone();
+            self.initial_geometry = self.geometry.clone();
         }
 
-        state.geometry = calculate_geometry(&self.geometry);
-        self.state = state.clone();
+        state.geometry = self.geometry.clone();
+        // self.state = state.clone();
         state
     }
 
+    // TODO: Need return?
     fn change(&mut self, changes: GeometryChangeState) -> WidgetState {
-        self.geometry = Geometry {
-            radius: self.geometry.radius + changes.geometry.x,
-            // center: Point2::new(
-            //     widget.geometry.center.x + change_state.geometry.x,
-            //     widget.geometry.center.y + change_state.geometry.y,
-            // ),
-            ..self.geometry.clone()
+        self.geometry = RectGeometry {
+            x: self.geometry.x + changes.geometry.x,
+            y: self.geometry.y + changes.geometry.y,
+            width: self.geometry.width + changes.geometry.width,
+            height: self.geometry.height + changes.geometry.height,
         };
 
-        self.state.geometry = calculate_geometry(&self.geometry);
+        //self.state.geometry = self.geometry.clone();
 
-        self.state.clone()
+        //self.state.clone()
+        WidgetState {
+            uuid: self.uuid.clone(),
+            selected: false,
+            hovered: false,
+            geometry: self.geometry.clone(), // !important
+        }
     }
 
     fn draw(&self, context: &mut WebRenderContext, _ui_state: &UiGlobalState) {
-        let x = self.geometry.center.x;
-        let y = self.geometry.center.y;
-        let radius = self.geometry.radius;
+        let radius = (self.geometry.width / 2.).min(self.geometry.height / 2.);
+        let x = self.geometry.x + radius + (self.geometry.width / 2. - radius);
+        let y = self.geometry.y + radius + (self.geometry.height / 2. - radius);
 
         let stroke_brush = context.solid_brush(Color::rgb8(0x8b, 0x69, 0x14));
         let fill_brush = context.solid_brush(Color::rgb8(0xff, 0xd7, 0x00));
@@ -160,14 +165,5 @@ impl Draw<WidgetState> for Smiley {
         // Draw the right eye
         let eye_x = (x + radius * 0.3).floor();
         context.stroke(Circle::new((eye_x, eye_y), eye_radius), &stroke_brush, 2.0);
-    }
-}
-
-fn calculate_geometry(geometry: &Geometry) -> RectGeometry {
-    RectGeometry {
-        x: geometry.center.x - geometry.radius,
-        y: geometry.center.y - geometry.radius,
-        width: geometry.radius * 2.0,
-        height: geometry.radius * 2.0,
     }
 }
