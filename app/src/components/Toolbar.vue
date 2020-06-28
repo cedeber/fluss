@@ -1,5 +1,6 @@
 <template>
   <div class="toolbar">
+    <div class="title">Eukolia <span class="tag">beta</span></div>
     <button @click="add_widget('smiley')">
       <i class="fas fa-plus" />
     </button>
@@ -39,6 +40,24 @@ export default {
   display: flex;
   align-items: center;
   padding: 0 12px;
+}
+
+.title {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.tag {
+  display: inline-block;
+  font-weight: normal;
+  font-size: 10px;
+  position: relative;
+  bottom: 8px;
+  right: 6px;
+  background: var(--light-orange);
+  padding: 1px 6px;
+  border-radius: 8px;
+  color: white;
 }
 
 button {
