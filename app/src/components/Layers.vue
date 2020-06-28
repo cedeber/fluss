@@ -1,5 +1,5 @@
 <template>
-  <div class="layers" @click="onDeselect">
+  <div class="layers" @click="onDeselect" @mouseover="onHover(null)">
     <div
       class="layer"
       v-for="widget in widgets"
@@ -35,7 +35,7 @@ export default {
       store.state.api.select_widget(uuid);
     }
 
-    function onHover(uuid: string) {
+    function onHover(uuid: string | null) {
       // console.log("hover", uuid);
       store.state.api.hover_widget(uuid);
     }
