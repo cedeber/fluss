@@ -1,6 +1,8 @@
 <template>
   <div class="toolbar">
-    <button class="icon" @click="add_widget('smiley')">add</button>
+    <button @click="add_widget('smiley')">
+      <i class="fas fa-plus" />
+    </button>
   </div>
 </template>
 

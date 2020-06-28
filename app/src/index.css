@@ -29,28 +29,7 @@
     --border-color: rgb(208, 208, 208);
 }
 
-/* --- Fonts --- */
-@font-face {
-	font-family: 'Linearicons';
-	src: url('./assets/fonts/linearicons.woff2') format('woff2');
-	font-weight: normal;
-	font-style: normal;
-}
-[class~="icon"] {
-	font-family: 'Linearicons';
-	speak: none;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-	font-feature-settings: "liga";
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
 /* --- Reset & Default --- */
-
 html, body, p, ol, ul, li, dl, dt, dd, blockquote, figure, fieldset, legend,
 textarea, pre, hr, button, input, select, textarea, td, th {
     margin: 0;
