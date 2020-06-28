@@ -100,7 +100,7 @@ extern "C" {
 
 // --- Settings ---
 pub static POINTER_SIZE: f64 = 8.0;
-pub static RECT_BORDER_WIDTH: f64 = 2.0;
+pub static RECT_BORDER_WIDTH: f64 = 1.0; // TODO Do not change
 pub static RECT_ANCHOR_RADIUS: f64 = 3.0;
 
 const WHITE: Color = Color::rgb8(0xFF, 0xFF, 0xFF);

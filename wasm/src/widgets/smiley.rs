@@ -128,10 +128,10 @@ impl Draw<WidgetState> for Smiley {
         let fill_brush = context.solid_brush(Color::rgb8(0xff, 0xd7, 0x00));
 
         // Draw the background
-        context.fill(Circle::new((x, y), radius), &fill_brush);
+        context.fill(Circle::new((x, y), radius - 1.), &fill_brush);
 
         // Draw the outer circle
-        context.stroke(Circle::new((x, y), radius), &stroke_brush, 2.0);
+        context.stroke(Circle::new((x, y), radius - 1.), &stroke_brush, 2.);
 
         // Draw the mouth
         let mouth_radius = (radius - radius * 0.3).floor();
@@ -160,8 +160,8 @@ impl Draw<WidgetState> for Smiley {
 
 fn get_widget_geometry(geometry: &RectGeometry) -> (f64, f64, f64) {
     let radius = (geometry.width / 2.).min(geometry.height / 2.);
-    let x = geometry.x + radius + (geometry.width / 2. - radius);
-    let y = geometry.y + radius + (geometry.height / 2. - radius);
+    let x = geometry.x + radius + (geometry.width / 2. - radius) + 0.5;
+    let y = geometry.y + radius + (geometry.height / 2. - radius) + 0.5;
 
     (x, y, radius)
 }

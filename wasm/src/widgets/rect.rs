@@ -380,14 +380,14 @@ impl Rect {
 }
 
 fn get_properties(geometry: &RectGeometry) -> Properties {
-    let border_width = geometry.width + RECT_BORDER_WIDTH;
-    let border_height = geometry.height + RECT_BORDER_WIDTH;
-    let border_left = geometry.x - RECT_BORDER_WIDTH / 2.;
-    let border_top = geometry.y - RECT_BORDER_WIDTH / 2.;
+    let border_width = geometry.width; // + RECT_BORDER_WIDTH;
+    let border_height = geometry.height; // + RECT_BORDER_WIDTH;
+    let border_left = geometry.x + 0.5; // - RECT_BORDER_WIDTH / 2.;
+    let border_top = geometry.y + 0.5; // - RECT_BORDER_WIDTH / 2.;
     let border_right = border_left + border_width;
     let border_bottom = border_top + border_height;
-    let line_left = geometry.x;
-    let line_top = geometry.y;
+    let line_left = geometry.x + 0.5;
+    let line_top = geometry.y + 0.5;
     let line_right = line_left + geometry.width;
     let line_bottom = line_top + geometry.height;
 
