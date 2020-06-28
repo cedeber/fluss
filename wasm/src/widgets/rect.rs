@@ -82,7 +82,7 @@ impl Draw<GeometryChangeState> for Rect {
 }
 
 impl Rect {
-    fn draw_hover(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState) {
+    fn draw_hover(&self, context: &mut WebRenderContext, _ui_state: &UiGlobalState) {
         // let viewport_width = ui_state.canvas_geometry.width;
         // let viewport_height = ui_state.canvas_geometry.width;
 
@@ -90,13 +90,13 @@ impl Rect {
         let brush = context.solid_brush(BLUE);
         context.stroke(
             Rectangle::new(
-                self.properties.border_left,
-                self.properties.border_top,
-                self.properties.border_right,
-                self.properties.border_bottom,
+                self.properties.border_left - 0.5,
+                self.properties.border_top - 0.5,
+                self.properties.border_right + 0.5,
+                self.properties.border_bottom + 0.5,
             ),
             &brush,
-            RECT_BORDER_WIDTH,
+            2.,
         );
 
         // Stroked lines
@@ -269,7 +269,7 @@ impl Rect {
                 self.properties.radius,
             ),
             &brush,
-            RECT_BORDER_WIDTH,
+            2.,
         );
 
         context.fill(
@@ -289,7 +289,7 @@ impl Rect {
                 self.properties.radius,
             ),
             &brush,
-            RECT_BORDER_WIDTH,
+            2.,
         );
 
         context.fill(
@@ -309,7 +309,7 @@ impl Rect {
                 self.properties.radius,
             ),
             &brush,
-            RECT_BORDER_WIDTH,
+            2.,
         );
 
         context.fill(
@@ -329,7 +329,7 @@ impl Rect {
                 self.properties.radius,
             ),
             &brush,
-            RECT_BORDER_WIDTH,
+            2.,
         );
 
         // Stroked lines

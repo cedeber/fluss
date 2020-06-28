@@ -51,7 +51,7 @@ impl Draw<()> for Cursor {
             let height = ui_state.canvas_geometry.height;
 
             let color = if ui_state.cursor.is_active {
-                Color::rgba8(0xAA, 0x00, 0x00, 0x77)
+                Color::rgba8(0xB8, 0x2E, 0xE5, 0x77) // PINK
             } else {
                 Color::rgba8(0x00, 0x00, 0x00, 0x77)
             };
