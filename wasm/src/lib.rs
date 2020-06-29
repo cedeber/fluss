@@ -231,8 +231,8 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             model.app_state.cursor.position = None;
             orders.send_msg(Msg::Draw);
         }
-        Msg::KeyPressed(ev) => {
-            model.key_code = ev.code();
+        Msg::KeyPressed(event) => {
+            model.key_code = event.code();
 
             if let Some(select_widget_uuid) = &model.app_state.active_widget_uuid {
                 let selected_widget = model
@@ -241,7 +241,7 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                     .find(|w| w.uuid.eq(select_widget_uuid));
 
                 if let Some(widget) = selected_widget {
-                    let offset = if ev.shift_key() { 10. } else { 1. };
+                    let offset = if event.shift_key() { 10. } else { 1. };
 
                     match model.key_code.as_str() {
                         "ArrowUp" => {
@@ -265,6 +265,10 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                             orders.send_msg(Msg::Draw);
                         }
                         "Delete" => {
+                            orders.send_msg(Msg::DeleteWidget(Some(widget.uuid.clone())));
+                        }
+                        "Backspace" => {
+                            event.prevent_default();
                             orders.send_msg(Msg::DeleteWidget(Some(widget.uuid.clone())));
                         }
                         _ => {}
