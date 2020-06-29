@@ -43,6 +43,7 @@ export default {
         select_widget,
         hover_widget,
         toggle_visibility_widget,
+        delete_widget,
       ] = start();
 
       store.commit(MUTATE_API, {
@@ -52,6 +53,7 @@ export default {
         select_widget,
         hover_widget,
         toggle_visibility_widget,
+        delete_widget,
       });
     })();
   },

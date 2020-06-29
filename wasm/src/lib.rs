@@ -93,6 +93,15 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         closure.forget();
     }
 
+    let delete_widget;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move |uuid: Option<String>| {
+            app.update(Msg::DeleteWidget(uuid))
+        })) as Box<dyn FnMut(Option<String>)>);
+        delete_widget = closure.as_ref().clone();
+        closure.forget();
+    }
+
     vec![
         activate_events,
         add_widget,
@@ -100,6 +109,7 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         select_widget,
         hover_widget,
         toggle_visibility_widget,
+        delete_widget,
     ]
     .into_boxed_slice()
 }
@@ -130,9 +140,9 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
 
     // TODO (later) Serialize (serde) for loading/saving
     model.widgets = vec![
-        Smiley::new("Smiley Pro", (275.0, 300.0), 150.0),
-        Smiley::new("Smiley", (475.0, 110.0), 50.0),
-        Smiley::new("Smiley Mini", (550.0, 165.0), 30.0),
+        // Smiley::new("Smiley Pro", (275.0, 300.0), 150.0),
+        // Smiley::new("Smiley", (475.0, 110.0), 50.0),
+        // Smiley::new("Smiley Mini", (550.0, 165.0), 30.0),
     ];
 
     model
@@ -164,6 +174,7 @@ pub enum Msg {
     SelectWidget(Option<String>),
     HoverWidget(Option<String>),
     ToggleVisibilityWidget(Option<String>),
+    DeleteWidget(Option<String>),
     Draw,
 }
 
@@ -253,6 +264,9 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                             model.app_state.active_widget_uuid = None;
                             orders.send_msg(Msg::Draw);
                         }
+                        "Delete" => {
+                            orders.send_msg(Msg::DeleteWidget(Some(widget.uuid.clone())));
+                        }
                         _ => {}
                     }
                 }
@@ -325,6 +339,12 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                     widget.visible = !widget.visible;
                     orders.send_msg(Msg::Draw);
                 }
+            }
+        }
+        Msg::DeleteWidget(uuid) => {
+            if let Some(uuid) = uuid {
+                model.widgets.retain(|w| w.uuid.ne(&uuid));
+                orders.send_msg(Msg::Draw);
             }
         }
         Msg::Draw => {
