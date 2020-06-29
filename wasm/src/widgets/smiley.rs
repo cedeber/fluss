@@ -22,6 +22,7 @@ pub struct Geometry {
 pub struct Smiley {
     pub name: String,
     pub uuid: String,
+    pub visible: bool,
     pub geometry: RectGeometry,
     initial_geometry: RectGeometry,
 }
@@ -38,6 +39,7 @@ impl Smiley {
         Smiley {
             name: String::from(name),
             uuid: Uuid::new_v4().to_string(),
+            visible: true,
             geometry: geometry.clone(),
             initial_geometry: geometry,
         }
@@ -58,42 +60,47 @@ impl Draw<WidgetState> for Smiley {
         // Widget bounding sphere
         let current_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
 
-        // Hovered: Test with current pointer position
-        if let Some(cursor_position) = &ui_state.cursor.position {
-            let current_cursor_bounding = BoundingSphere::new(cursor_position.clone(), 1.0);
-            state.hovered = current_widget_bounding.intersects(&current_cursor_bounding)
-                && !ui_state.cursor.is_active;
-        }
+        // This is behavior with the cursor, only do if the widget is visible
+        if self.visible {
+            // Hovered: Test with current pointer position
+            if let Some(cursor_position) = &ui_state.cursor.position {
+                let current_cursor_bounding = BoundingSphere::new(cursor_position.clone(), 1.0);
+                state.hovered = current_widget_bounding.intersects(&current_cursor_bounding)
+                    && !ui_state.cursor.is_active;
+            }
 
-        // Selected
-        if let Some(state_uuid) = &ui_state.active_widget_uuid {
-            // Set selected if it was already selected
-            state.selected = self.uuid.eq(state_uuid);
-        }
+            // Selected
+            if let Some(state_uuid) = &ui_state.active_widget_uuid {
+                // Set selected if it was already selected
+                state.selected = self.uuid.eq(state_uuid);
+            }
 
-        if let Some(pos) = &ui_state.cursor.down_start_position {
-            let (x, y, radius) = get_widget_geometry(&self.initial_geometry);
-            let mousedown_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
-            let initial_cursor_bounding = BoundingSphere::new(pos.clone(), 1.0);
+            if let Some(pos) = &ui_state.cursor.down_start_position {
+                let (x, y, radius) = get_widget_geometry(&self.initial_geometry);
+                let mousedown_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
+                let initial_cursor_bounding = BoundingSphere::new(pos.clone(), 1.0);
 
-            let is_initial_mouse_over =
-                mousedown_widget_bounding.intersects(&initial_cursor_bounding);
+                let is_initial_mouse_over =
+                    mousedown_widget_bounding.intersects(&initial_cursor_bounding);
 
-            if is_initial_mouse_over && !ui_state.cursor.is_active {
-                state.selected = true;
+                if is_initial_mouse_over && !ui_state.cursor.is_active {
+                    state.selected = true;
 
-                if let Some(cursor_position) = &ui_state.cursor.position {
-                    if let Some(uuid) = &ui_state.active_widget_uuid {
-                        if self.uuid == *uuid {
-                            self.geometry.x = self.initial_geometry.x + (cursor_position.x - pos.x);
-                            self.geometry.y = self.initial_geometry.y + (cursor_position.y - pos.y);
+                    if let Some(cursor_position) = &ui_state.cursor.position {
+                        if let Some(uuid) = &ui_state.active_widget_uuid {
+                            if self.uuid == *uuid {
+                                self.geometry.x =
+                                    self.initial_geometry.x + (cursor_position.x - pos.x);
+                                self.geometry.y =
+                                    self.initial_geometry.y + (cursor_position.y - pos.y);
+                            }
                         }
                     }
                 }
+            } else {
+                // mouseout or mouseup
+                self.initial_geometry = self.geometry.clone();
             }
-        } else {
-            // mouseout or mouseup
-            self.initial_geometry = self.geometry.clone();
         }
 
         state.geometry = self.geometry.clone();

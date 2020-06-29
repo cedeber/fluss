@@ -4,6 +4,7 @@ use nalgebra::Point2;
 use piet::{Color, RenderContext};
 use piet_web::WebRenderContext;
 use seed::{attrs, canvas, log, prelude::*, App};
+use std::iter::FromIterator;
 use web_sys::HtmlCanvasElement;
 use widgets::{
     rect::{Rect, RectState},
@@ -83,12 +84,22 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         closure.forget();
     }
 
+    let toggle_visibility_widget;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move |uuid: Option<String>| {
+            app.update(Msg::ToggleVisibilityWidget(uuid))
+        })) as Box<dyn FnMut(Option<String>)>);
+        toggle_visibility_widget = closure.as_ref().clone();
+        closure.forget();
+    }
+
     vec![
         activate_events,
         add_widget,
         update_widget,
         select_widget,
         hover_widget,
+        toggle_visibility_widget,
     ]
     .into_boxed_slice()
 }
@@ -152,6 +163,7 @@ pub enum Msg {
     UpdateWidget(JsValue), // WidgetState
     SelectWidget(Option<String>),
     HoverWidget(Option<String>),
+    ToggleVisibilityWidget(Option<String>),
     Draw,
 }
 
@@ -302,6 +314,15 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                 orders.send_msg(Msg::Draw);
             }
         }
+        Msg::ToggleVisibilityWidget(uuid) => {
+            if let Some(uuid) = uuid {
+                let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&uuid));
+                if let Some(widget) = selected_widget {
+                    widget.visible = !widget.visible;
+                    orders.send_msg(Msg::Draw);
+                }
+            }
+        }
         Msg::Draw => {
             draw(&model.canvas, &mut model.app_state, &mut model.widgets);
         }
@@ -323,11 +344,12 @@ fn draw(
     ctx.clear(Color::rgb8(0xf9, 0xf9, 0xf9));
 
     // --- Update ---
-    let previously_hovered_widget_uuid = &app_state.pointer_widget_uuid;
 
     // Updated Widgets
     let mut widgets_states: Vec<WidgetState> = vec![];
 
+    // Need to be able to hover or select it from the layer
+    // for widget in widgets.iter_mut().filter(|w| w.visible).rev() {
     for widget in widgets.iter_mut().rev() {
         // FIXME needed?
         widgets_states.push(widget.update(&mut app_state));
@@ -402,7 +424,7 @@ fn draw(
     // --- Draw ---
 
     // Draw all widgets
-    for widget in widgets.iter_mut().rev() {
+    for widget in widgets.iter_mut().filter(|w| w.visible).rev() {
         // FIXME: Used returned values to update app_state
         widget.draw(&mut ctx, &app_state);
     }
@@ -431,6 +453,7 @@ fn draw(
 // `view` describes what to display.
 pub fn view(model: &Model) -> Node<Msg> {
     // JavaScript
+    // let widgets: Vec<&Smiley> = Vec::from_iter(model.widgets.iter().filter(|w| w.visible));
     update_app_state(
         &JsValue::from_serde(&model.app_state).unwrap(),
         &JsValue::from_serde(&model.widgets).unwrap(),

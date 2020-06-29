@@ -4,12 +4,19 @@
       class="layer"
       v-for="widget in widgets"
       :key="widget.uuid"
-      :class="{ selected: widget.selected, hovered: widget.hovered }"
-      @click.stop="onClick(widget.uuid)"
-      @dblclick.stop="onDblClick(widget.uuid)"
+      :class="{ selected: widget.selected, hovered: widget.hovered, hidden: !widget.visible }"
+      @click.stop.="onClick(widget.uuid)"
       @mouseover.stop="onHover(widget.uuid)"
     >
-      {{ widget.name }}
+      <div class="layer--name">
+        <i class="fas fa-vector-square" />
+        <div @dblclick.stop="onDblClick(widget.uuid)" class="name">
+          {{ widget.name }}
+        </div>
+      </div>
+      <div class="tool" @click.stop="onHide(widget.uuid)">
+        <i class="fas fa-eye-slash" />
+      </div>
     </div>
   </div>
 </template>
@@ -26,6 +33,7 @@ export default {
       store.state.app?.widgets.map((widget) => ({
         name: widget.name,
         uuid: widget.uuid,
+        visible: widget.visible,
         selected: widget.uuid === store.state.app.active_widget_uuid,
         hovered: widget.uuid === store.state.app.pointer_widget_uuid,
       })),
@@ -48,7 +56,11 @@ export default {
       store.state.api.select_widget(null);
     }
 
-    return { widgets, onClick, onHover, onDblClick, onDeselect };
+    function onHide(uuid: string) {
+      store.state.api.toggle_visibility_widget(uuid);
+    }
+
+    return { widgets, onClick, onHover, onDblClick, onDeselect, onHide };
   },
 };
 </script>
@@ -78,9 +90,11 @@ export default {
 
 .layer {
   display: flex;
-  padding: 4px 12px;
+  padding: 4px 8px;
   border-radius: 4px;
   cursor: default;
+  justify-content: space-between;
+  align-items: center;
 }
 
 /*.layer:hover:not(.selected),*/
@@ -91,5 +105,28 @@ export default {
 .selected {
   background: var(--pink);
   color: white;
+}
+
+.layer--name {
+  display: flex;
+  align-items: center;
+}
+
+.layer--name .fas {
+  margin-right: 4px;
+}
+
+.name {
+  min-width: 20px;
+}
+
+.tool {
+  display: none;
+  opacity: 0.7;
+}
+
+.layer.hidden .tool,
+.layer:hover .tool {
+  display: flex;
 }
 </style>

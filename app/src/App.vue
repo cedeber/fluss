@@ -36,7 +36,14 @@ export default {
     // Load WASM
     (async function () {
       await init("/pkg/eukolia_bg.wasm");
-      const [activate_events, add_widget, update_widget, select_widget, hover_widget] = start();
+      const [
+        activate_events,
+        add_widget,
+        update_widget,
+        select_widget,
+        hover_widget,
+        toggle_visibility_widget,
+      ] = start();
 
       store.commit(MUTATE_API, {
         activate_events,
@@ -44,6 +51,7 @@ export default {
         update_widget,
         select_widget,
         hover_widget,
+        toggle_visibility_widget,
       });
     })();
   },
