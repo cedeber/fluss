@@ -249,6 +249,10 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                             widget.geometry.x += offset;
                             orders.send_msg(Msg::Draw);
                         }
+                        "Escape" => {
+                            model.app_state.active_widget_uuid = None;
+                            orders.send_msg(Msg::Draw);
+                        }
                         _ => {}
                     }
                 }
