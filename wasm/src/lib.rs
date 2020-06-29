@@ -234,6 +234,15 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
         Msg::KeyPressed(event) => {
             model.key_code = event.code();
 
+            // prevent some key on the entire application
+            match model.key_code.as_str() {
+                // browser back
+                "Backspace" => {
+                    event.prevent_default();
+                }
+                _ => {}
+            }
+
             if let Some(select_widget_uuid) = &model.app_state.active_widget_uuid {
                 let selected_widget = model
                     .widgets
@@ -268,7 +277,6 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                             orders.send_msg(Msg::DeleteWidget(Some(widget.uuid.clone())));
                         }
                         "Backspace" => {
-                            event.prevent_default();
                             orders.send_msg(Msg::DeleteWidget(Some(widget.uuid.clone())));
                         }
                         _ => {}
