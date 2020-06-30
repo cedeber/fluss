@@ -13,6 +13,7 @@ export interface Widget {
   // type: "Smiley";
   geometry: RectGeometry;
   initial_geometry: RectGeometry;
+  visible: boolean;
 }
 
 export interface State {
