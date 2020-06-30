@@ -4,14 +4,27 @@
       class="layer"
       v-for="widget in widgets"
       :key="widget.uuid"
-      :class="{ selected: widget.selected, hovered: widget.hovered, hidden: !widget.visible }"
-      @click.stop.="onClick(widget.uuid)"
+      :class="{
+        selected: widget.selected,
+        hovered: widget.hovered,
+        hidden: !widget.visible,
+        edit: editMode === widget.uuid,
+      }"
+      @click.stop="onClick(widget.uuid)"
       @mouseover.stop="onHover(widget.uuid)"
     >
       <div class="layer--name">
         <i class="fas fa-vector-square" />
-        <div @dblclick.stop="onDblClick(widget.uuid)" class="name">
-          {{ widget.name }}
+        <div v-if="editMode === widget.uuid" class="edit">
+          <input
+            :value="widget.name"
+            v-on:blur="onExit"
+            v-on:change="(e) => onRename(e, widget)"
+            :id="`layer-${widget.uuid}`"
+          />
+        </div>
+        <div v-else @dblclick="onEditLayerName(widget.uuid)" class="name">
+          {{ widget.name || "&nbsp;" }}
         </div>
       </div>
       <div class="tool" @click.stop="onHide(widget.uuid)">
@@ -22,34 +35,50 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, computed } from "vue";
+import { reactive, toRefs, computed, nextTick } from "vue";
 import { useStore } from "vuex";
-import { State } from "../store";
+import { State, Widget } from "../store";
+
+interface InnerState {
+  editMode: string | null;
+}
 
 export default {
   setup() {
     const store = useStore<State>();
     const widgets = computed(() =>
       store.state.app?.widgets.map((widget) => ({
-        name: widget.name,
-        uuid: widget.uuid,
-        visible: widget.visible,
+        ...widget,
         selected: widget.uuid === store.state.app.active_widget_uuid,
         hovered: widget.uuid === store.state.app.pointer_widget_uuid,
       })),
     );
+    const state = reactive<InnerState>({
+      editMode: null,
+    });
 
     function onClick(uuid: string) {
       store.state.api.select_widget(uuid);
     }
 
     function onHover(uuid: string | null) {
-      // console.log("hover", uuid);
       store.state.api.hover_widget(uuid);
     }
 
-    function onDblClick(uuid: string) {
-      alert("edit");
+    function onEditLayerName(uuid: string) {
+      store.state.api.activate_events(false);
+      state.editMode = uuid;
+      nextTick(() => {
+        const el = document.getElementById(`layer-${uuid}`);
+        if (el) {
+          el.focus();
+        }
+      });
+    }
+
+    function onExit() {
+      store.state.api.activate_events(true);
+      state.editMode = null;
     }
 
     function onDeselect() {
@@ -60,7 +89,26 @@ export default {
       store.state.api.toggle_visibility_widget(uuid);
     }
 
-    return { widgets, onClick, onHover, onDblClick, onDeselect, onHide };
+    function onRename(event, widget: Widget) {
+      const name = event.target.value;
+      store.state.api.update_widget({
+        ...widget,
+        name,
+      });
+      onExit();
+    }
+
+    return {
+      ...toRefs(state),
+      widgets,
+      onClick,
+      onHover,
+      onEditLayerName,
+      onDeselect,
+      onHide,
+      onRename,
+      onExit,
+    };
   },
 };
 </script>
@@ -110,6 +158,8 @@ export default {
 .layer--name {
   display: flex;
   align-items: center;
+  flex: 1;
+  overflow: hidden;
 }
 
 .layer--name .fas {
@@ -117,16 +167,33 @@ export default {
 }
 
 .name {
-  min-width: 20px;
+  min-width: 50px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  flex: 1;
 }
 
 .tool {
   display: none;
   opacity: 0.7;
+  font-size: 12px;
 }
 
-.layer.hidden .tool,
-.layer:hover .tool {
+.layer.hidden:not(.edit) .tool,
+.layer:hover:not(.edit) .tool {
   display: flex;
+}
+
+.edit,
+input {
+  width: 100%;
+}
+
+input {
+  font-size: 12px;
+  background: white;
+  border-radius: 2px;
+  padding: 1px 4px;
 }
 </style>

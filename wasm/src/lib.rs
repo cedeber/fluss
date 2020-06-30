@@ -170,7 +170,7 @@ pub enum Msg {
     KeyPressed(web_sys::KeyboardEvent),
     WindowResize,
     AddWidget,
-    UpdateWidget(JsValue), // WidgetState
+    UpdateWidget(JsValue), // Widget
     SelectWidget(Option<String>),
     HoverWidget(Option<String>),
     ToggleVisibilityWidget(Option<String>),
@@ -330,12 +330,12 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             orders.send_msg(Msg::Draw);
         }
         Msg::UpdateWidget(state) => {
-            // state = WidgetState
             let serialized_state: serde_json::Result<Smiley> = state.as_ref().into_serde();
             if let Ok(state) = serialized_state {
                 let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&state.uuid));
                 if let Some(widget) = selected_widget {
                     // log! {state.geometry};
+                    widget.name = state.name;
                     widget.geometry = state.geometry;
                     // TODO initial_geometry?
                     // TODO check validity/parse
