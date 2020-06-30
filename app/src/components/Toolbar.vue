@@ -67,6 +67,7 @@ button {
   border-radius: 4px;
   transition: 300ms;
   border: 1px solid transparent;
+  font-size: 16px;
 }
 
 button:hover {
