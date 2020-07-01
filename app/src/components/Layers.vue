@@ -1,60 +1,81 @@
 <template>
-  <div class="layers" @click="onDeselect" @mouseover="onHover(null)">
-    <div
-      class="layer"
-      v-for="widget in widgets"
-      :key="widget.uuid"
-      :class="{
-        selected: widget.selected,
-        hovered: widget.hovered,
-        hidden: !widget.visible,
-        edit: editMode === widget.uuid,
-      }"
-      @click.stop="onClick(widget.uuid)"
-      @mouseover.stop="onHover(widget.uuid)"
-    >
-      <div class="layer--name">
-        <i class="fas fa-vector-square" />
-        <div v-if="editMode === widget.uuid" class="edit">
-          <input
-            :value="widget.name"
-            v-on:blur="onExit"
-            v-on:change="(e) => onRename(e, widget)"
-            :id="`layer-${widget.uuid}`"
-          />
+  <div class="left-panel">
+    <div class="search">
+      <i class="fas fa-search" />
+      <input type="text" @blur="onExit" @change="onExit" @focus="onEnter" v-model="searchFor" />
+    </div>
+    <div class="layers" @click="onDeselect" @mouseover="onHover(null)">
+      <div
+        class="layer"
+        v-for="widget in widgets"
+        :key="widget.uuid"
+        :class="{
+          selected: widget.selected,
+          hovered: widget.hovered,
+          hidden: !widget.visible,
+          edit: editMode === widget.uuid,
+        }"
+        @click.stop="onClick(widget.uuid)"
+        @mouseover.stop="onHover(widget.uuid)"
+      >
+        <div class="layer--name">
+          <i class="fas fa-vector-square" />
+          <div v-if="editMode === widget.uuid" class="edit">
+            <input
+              :value="widget.name"
+              @blur="onExit"
+              @change="(e) => onRename(e, widget)"
+              @keydown="(e) => onLayeyKeyDown(e)"
+              :id="`layer-${widget.uuid}`"
+            />
+          </div>
+          <div v-else @dblclick="onEditLayerName(widget.uuid)" class="name">
+            {{ widget.name || "&nbsp;" }}
+          </div>
         </div>
-        <div v-else @dblclick="onEditLayerName(widget.uuid)" class="name">
-          {{ widget.name || "&nbsp;" }}
+        <div class="tool" @click.stop="onHide(widget.uuid)">
+          <i class="fas fa-eye-slash" />
         </div>
-      </div>
-      <div class="tool" @click.stop="onHide(widget.uuid)">
-        <i class="fas fa-eye-slash" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, computed, nextTick } from "vue";
+import { reactive, toRefs, computed, nextTick, watchEffect, ComputedRef } from "vue";
 import { useStore } from "vuex";
+import Fuse from "fuse.js";
 import { State, Widget } from "../store";
 
 interface InnerState {
   editMode: string | null;
+  searchFor: string;
+  widgets: ComputedRef<Widget[]>;
 }
 
 export default {
   setup() {
     const store = useStore<State>();
-    const widgets = computed(() =>
-      store.state.app?.widgets.map((widget) => ({
-        ...widget,
-        selected: widget.uuid === store.state.app.active_widget_uuid,
-        hovered: widget.uuid === store.state.app.pointer_widget_uuid,
-      })),
-    );
     const state = reactive<InnerState>({
       editMode: null,
+      searchFor: "",
+      widgets: computed(() => {
+        const widgets = store.state.app?.widgets;
+        const fuse = new Fuse(widgets, { keys: ["name"] });
+        return widgets
+          ?.map((widget) => ({
+            ...widget,
+            selected: widget.uuid === store.state.app.active_widget_uuid,
+            hovered: widget.uuid === store.state.app.pointer_widget_uuid,
+          }))
+          .filter((widget) => {
+            if (!fuse || state.searchFor.trim() === "") return true;
+            return fuse
+              .search(state.searchFor)
+              .map((r) => r.item.uuid)
+              .includes(widget.uuid);
+          });
+      }),
     });
 
     function onClick(uuid: string) {
@@ -66,7 +87,7 @@ export default {
     }
 
     function onEditLayerName(uuid: string) {
-      store.state.api.activate_events(false);
+      onEnter();
       state.editMode = uuid;
       nextTick(() => {
         const el = document.getElementById(`layer-${uuid}`);
@@ -74,6 +95,10 @@ export default {
           el.focus();
         }
       });
+    }
+
+    function onEnter() {
+      store.state.api.activate_events(false);
     }
 
     function onExit() {
@@ -98,9 +123,18 @@ export default {
       onExit();
     }
 
+    function onLayeyKeyDown(event) {
+      if (event.key === "Escape") {
+        onExit();
+      }
+    }
+
+    function onSearch(event) {
+      const searchFor = event.target.value;
+    }
+
     return {
       ...toRefs(state),
-      widgets,
       onClick,
       onHover,
       onEditLayerName,
@@ -108,13 +142,16 @@ export default {
       onHide,
       onRename,
       onExit,
+      onLayeyKeyDown,
+      onEnter,
+      onSearch,
     };
   },
 };
 </script>
 
 <style scoped>
-.layers {
+.left-panel {
   position: absolute;
   top: 48px;
   left: 0;
@@ -123,8 +160,13 @@ export default {
   background: var(--panel-background);
   z-index: 9;
   border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.layers {
+  overflow-y: auto;
   font-size: 12px;
-  overflow-y: scroll;
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -195,5 +237,18 @@ input {
   background: white;
   border-radius: 2px;
   padding: 1px 4px;
+}
+
+.search {
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  padding: 6px 3px;
+  align-items: center;
+}
+
+.search .fa-search {
+  margin: 0 4px;
+  font-size: 12px;
 }
 </style>
