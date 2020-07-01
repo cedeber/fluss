@@ -11,14 +11,14 @@
     "@fortawesome/fontawesome-free": "^5.13.1",
     "fuse.js": "^6.4.0",
     "ramda": "^0.27.0",
-    "vue": "^3.0.0-beta.16",
-    "vue-router": "^4.0.0-alpha.13",
+    "vue": "^3.0.0-beta.17",
+    "vue-router": "^4.0.0-alpha.14",
     "vuex": "^4.0.0-beta.4"
   },
   "devDependencies": {
     "@types/ramda": "^0.27.6",
-    "@vue/compiler-sfc": "^3.0.0-beta.16",
-    "typescript": "^3.9.5",
+    "@vue/compiler-sfc": "^3.0.0-beta.17",
+    "typescript": "^3.9.6",
     "vite": "^1.0.0-beta.8"
   },
   "prettier": {
