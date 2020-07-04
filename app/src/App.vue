@@ -57,8 +57,6 @@ export default {
         delete_widget,
         swap_widget,
       });
-
-      });
     })();
   },
 };
