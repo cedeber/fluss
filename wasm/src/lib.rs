@@ -4,6 +4,7 @@ use nalgebra::Point2;
 use piet::{Color, RenderContext};
 use piet_web::WebRenderContext;
 use seed::{attrs, canvas, log, prelude::*, App};
+use serde::{Deserialize, Serialize};
 use std::iter::FromIterator;
 use web_sys::HtmlCanvasElement;
 use widgets::{
@@ -102,6 +103,15 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         closure.forget();
     }
 
+    let swap_widget;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move |state: JsValue| {
+            app.update(Msg::SwapWidget(state))
+        })) as Box<dyn FnMut(JsValue)>);
+        swap_widget = closure.as_ref().clone();
+        closure.forget();
+    }
+
     vec![
         activate_events,
         add_widget,
@@ -110,6 +120,7 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         hover_widget,
         toggle_visibility_widget,
         delete_widget,
+        swap_widget,
     ]
     .into_boxed_slice()
 }
@@ -175,6 +186,7 @@ pub enum Msg {
     HoverWidget(Option<String>),
     ToggleVisibilityWidget(Option<String>),
     DeleteWidget(Option<String>),
+    SwapWidget(JsValue),
     Draw,
 }
 
@@ -357,6 +369,27 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             if let Some(uuid) = uuid {
                 model.widgets.retain(|w| w.uuid.ne(&uuid));
                 orders.send_msg(Msg::Draw);
+            }
+        }
+        Msg::SwapWidget(state) => {
+            #[derive(Serialize, Deserialize)]
+            struct Test {
+                uuid: String,
+                a: usize,
+                b: usize,
+            }
+
+            let serialized_state: serde_json::Result<Test> = state.as_ref().into_serde();
+            if let Ok(state) = serialized_state {
+                // TODO check binary_search_by_key(&13, |&(a,b)| b)
+                let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&state.uuid));
+                if let Some(widget) = selected_widget {
+                    let len = model.widgets.len();
+                    if state.a < len && state.b < len {
+                        model.widgets.swap(state.a, state.b);
+                        orders.send_msg(Msg::Draw);
+                    }
+                }
             }
         }
         Msg::Draw => {

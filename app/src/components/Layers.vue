@@ -1,13 +1,40 @@
 <template>
   <div class="left-panel">
     <div class="search">
-      <i class="fas fa-search" />
-      <input type="text" @blur="onExit" @change="onExit" @focus="onEnter" v-model="searchFor" />
+      <i class="fas fa-search fa-sm" />
+      <input
+        type="text"
+        @blur="onExit"
+        @change="onExit"
+        @focus="onEnter"
+        v-model="searchFor"
+        placeholder="Search Layers"
+      />
+      <div class="clear-search" @click="onClearSearch" v-if="searchFor">
+        <i class="fas fa-times-circle fa-sm" />
+      </div>
+    </div>
+    <div class="layer-tools">
+      <div class="layer-tool" @click="onLayerMove(-2)">
+        <i class="fas fa-arrow-up fa-sm" />
+      </div>
+      <div class="layer-tool" @click="onLayerMove(-1)">
+        <i class="fas fa-caret-square-up fa-sm" />
+      </div>
+      <div class="layer-tool" @click="onLayerMove(1)">
+        <i class="fas fa-caret-square-down fa-sm" />
+      </div>
+      <div class="layer-tool" @click="onLayerMove(2)">
+        <i class="fas fa-arrow-down fa-sm" />
+      </div>
     </div>
     <div class="layers" @click="onDeselect" @mouseover="onHover(null)">
+      <div class="not-found" v-if="searchFor && widgets.length === 0">
+        No layers with "{{ searchFor }}" found.
+      </div>
       <div
         class="layer"
-        v-for="widget in widgets"
+        v-for="(widget, index) in widgets"
         :key="widget.uuid"
         :class="{
           selected: widget.selected,
@@ -17,9 +44,10 @@
         }"
         @click.stop="onClick(widget.uuid)"
         @mouseover.stop="onHover(widget.uuid)"
+        :data-index="index"
       >
         <div class="layer--name">
-          <i class="fas fa-vector-square" />
+          <i class="fas fa-vector-square fa-xs" />
           <div v-if="editMode === widget.uuid" class="edit">
             <input
               :value="widget.name"
@@ -30,11 +58,11 @@
             />
           </div>
           <div v-else @dblclick="onEditLayerName(widget.uuid)" class="name">
-            {{ widget.name || "&nbsp;" }}
+            {{ widget.index }} - {{ widget.name || "&nbsp;" }}
           </div>
         </div>
         <div class="tool" @click.stop="onHide(widget.uuid)">
-          <i class="fas fa-eye-slash" />
+          <i class="fas fa-eye-slash fa-xs" />
         </div>
       </div>
     </div>
@@ -42,7 +70,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, toRefs, computed, nextTick, watchEffect, ComputedRef } from "vue";
+import { reactive, toRefs, computed, nextTick, ComputedRef } from "vue";
 import { useStore } from "vuex";
 import Fuse from "fuse.js";
 import { State, Widget } from "../store";
@@ -62,11 +90,13 @@ export default {
       widgets: computed(() => {
         const widgets = store.state.app?.widgets;
         const fuse = new Fuse(widgets, { keys: ["name"] });
+        let index = 0;
         return widgets
           ?.map((widget) => ({
             ...widget,
-            selected: widget.uuid === store.state.app.active_widget_uuid,
-            hovered: widget.uuid === store.state.app.pointer_widget_uuid,
+            index: index++,
+            selected: widget.uuid === store.state.app.active_widget_uuid, // TODO Do it directly in template?
+            hovered: widget.uuid === store.state.app.pointer_widget_uuid, // TODO Do it directly in template?
           }))
           .filter((widget) => {
             if (!fuse || state.searchFor.trim() === "") return true;
@@ -92,7 +122,8 @@ export default {
       nextTick(() => {
         const el = document.getElementById(`layer-${uuid}`);
         if (el) {
-          el.focus();
+          // el.focus();
+          el.select();
         }
       });
     }
@@ -129,8 +160,47 @@ export default {
       }
     }
 
-    function onSearch(event) {
-      const searchFor = event.target.value;
+    function onClearSearch() {
+      state.searchFor = "";
+    }
+
+    function onLayerSwap(uuid: string, a: number, b: number) {
+      store.state.api.swap_widget({ uuid, a, b });
+    }
+
+    function onLayerMove(direction) {
+      const len = state.widgets.length;
+      let goTo = false;
+      for (let i = 0; i < len; i += 1) {
+        const widget = state.widgets[i];
+        if (widget.uuid === store.state.app.active_widget_uuid) {
+          goTo = !goTo;
+        }
+
+        if (Math.abs(direction) === 1) {
+          if (goTo === true) {
+            // up, down: single swap
+            onLayerSwap(widget.uuid, i, i + direction);
+            // don't swap next
+            goTo = false;
+          }
+        } else if (direction > 0) {
+          // bottom: swap all next
+          if (goTo === true) {
+            onLayerSwap(widget.uuid, i, i + 1);
+          }
+        } else {
+          // top
+          if (goTo === true) {
+            // swap all previous
+            for (let y = i; y > 0; y -= 1) {
+              onLayerSwap(widget.uuid, y, y - 1);
+            }
+            // don't swap next
+            goTo = false;
+          }
+        }
+      }
     }
 
     return {
@@ -144,7 +214,8 @@ export default {
       onExit,
       onLayeyKeyDown,
       onEnter,
-      onSearch,
+      onClearSearch,
+      onLayerMove,
     };
   },
 };
@@ -166,12 +237,12 @@ export default {
 
 .layers {
   overflow-y: auto;
-  font-size: 12px;
   user-select: none;
   display: flex;
   flex-direction: column;
   /*gap: 1px;*/
   padding: 3px;
+  flex: 1;
 }
 
 .layer:not(:last-child) {
@@ -214,12 +285,12 @@ export default {
   text-overflow: ellipsis;
   overflow: hidden;
   flex: 1;
+  font-size: 12px;
 }
 
 .tool {
   display: none;
   opacity: 0.7;
-  font-size: 12px;
 }
 
 .layer.hidden:not(.edit) .tool,
@@ -230,13 +301,16 @@ export default {
 .edit,
 input {
   width: 100%;
+  line-height: 0;
 }
 
 input {
   font-size: 12px;
   background: white;
   border-radius: 2px;
-  padding: 1px 4px;
+  padding: 2px 4px;
+  outline: 0;
+  line-height: 1;
 }
 
 .search {
@@ -247,8 +321,31 @@ input {
   align-items: center;
 }
 
+.search .clear-search,
 .search .fa-search {
   margin: 0 4px;
-  font-size: 12px;
+  line-height: 1;
+}
+
+.layer-tools {
+  display: flex;
+  padding: 4px 6px;
+  background: #e5e5e5;
+  border-bottom: 1px solid var(--border-color);
+  justify-content: center;
+}
+
+.layer-tool {
+  line-height: 1;
+}
+
+.layer-tool:not(:last-child) {
+  margin-right: 8px;
+}
+
+.not-found {
+  opacity: 0.5;
+  word-break: break-word;
+  font-size: 13px;
 }
 </style>
