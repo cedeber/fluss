@@ -34,17 +34,16 @@
       </div>
       <div
         class="layer"
-        v-for="(widget, index) in widgets"
+        v-for="widget in widgets"
         :key="widget.uuid"
         :class="{
-          selected: widget.selected,
-          hovered: widget.hovered,
+          selected: widget.uuid === active_widget_uuid,
+          hovered: widget.uuid === pointer_widget_uuid,
           hidden: !widget.visible,
           edit: editMode === widget.uuid,
         }"
         @click.stop="onClick(widget.uuid)"
         @mouseover.stop="onHover(widget.uuid)"
-        :data-index="index"
       >
         <div class="layer--name">
           <i class="fas fa-vector-square fa-xs" />
@@ -58,7 +57,7 @@
             />
           </div>
           <div v-else @dblclick="onEditLayerName(widget.uuid)" class="name">
-            {{ widget.index }} - {{ widget.name || "&nbsp;" }}
+            {{ widget.name || "&nbsp;" }}
           </div>
         </div>
         <div class="tool" @click.stop="onHide(widget.uuid)">
@@ -78,6 +77,8 @@ import { State, Widget } from "../store";
 interface InnerState {
   editMode: string | null;
   searchFor: string;
+  active_widget_uuid: ComputedRef<string | undefined | null>;
+  pointer_widget_uuid: ComputedRef<string | undefined | null>;
   widgets: ComputedRef<Widget[]>;
 }
 
@@ -87,24 +88,18 @@ export default {
     const state = reactive<InnerState>({
       editMode: null,
       searchFor: "",
+      active_widget_uuid: computed(() => store.state.app?.active_widget_uuid),
+      pointer_widget_uuid: computed(() => store.state.app?.pointer_widget_uuid),
       widgets: computed(() => {
-        const widgets = store.state.app?.widgets;
+        const widgets = store.state.app?.widgets ?? [];
         const fuse = new Fuse(widgets, { keys: ["name"] });
-        let index = 0;
-        return widgets
-          ?.map((widget) => ({
-            ...widget,
-            index: index++,
-            selected: widget.uuid === store.state.app.active_widget_uuid, // TODO Do it directly in template?
-            hovered: widget.uuid === store.state.app.pointer_widget_uuid, // TODO Do it directly in template?
-          }))
-          .filter((widget) => {
-            if (!fuse || state.searchFor.trim() === "") return true;
-            return fuse
-              .search(state.searchFor)
-              .map((r) => r.item.uuid)
-              .includes(widget.uuid);
-          });
+        return widgets?.filter((widget) => {
+          if (!fuse || state.searchFor.trim() === "") return true;
+          return fuse
+            .search(state.searchFor)
+            .map((r) => r.item.uuid)
+            .includes(widget.uuid);
+        });
       }),
     });
 
@@ -120,10 +115,10 @@ export default {
       onEnter();
       state.editMode = uuid;
       nextTick(() => {
-        const el = document.getElementById(`layer-${uuid}`);
-        if (el) {
-          // el.focus();
-          el.select();
+        const inputElement = <HTMLInputElement | null>document.getElementById(`layer-${uuid}`);
+        if (inputElement) {
+          // inputElement.focus();
+          inputElement.select();
         }
       });
     }
@@ -145,8 +140,8 @@ export default {
       store.state.api.toggle_visibility_widget(uuid);
     }
 
-    function onRename(event, widget: Widget) {
-      const name = event.target.value;
+    function onRename(event: Event, widget: Widget) {
+      const name = (<HTMLInputElement>event.target)?.value;
       store.state.api.update_widget({
         ...widget,
         name,
@@ -154,7 +149,7 @@ export default {
       onExit();
     }
 
-    function onLayeyKeyDown(event) {
+    function onLayeyKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         onExit();
       }
@@ -168,30 +163,26 @@ export default {
       store.state.api.swap_widget({ uuid, a, b });
     }
 
-    function onLayerMove(direction) {
+    function onLayerMove(direction: number) {
       const len = state.widgets.length;
       let goTo = false;
       for (let i = 0; i < len; i += 1) {
         const widget = state.widgets[i];
-        if (widget.uuid === store.state.app.active_widget_uuid) {
+        if (widget.uuid === store.state.app?.active_widget_uuid) {
           goTo = !goTo;
         }
 
-        if (Math.abs(direction) === 1) {
-          if (goTo === true) {
+        if (goTo) {
+          if (Math.abs(direction) === 1) {
             // up, down: single swap
             onLayerSwap(widget.uuid, i, i + direction);
             // don't swap next
             goTo = false;
-          }
-        } else if (direction > 0) {
-          // bottom: swap all next
-          if (goTo === true) {
+          } else if (direction > 0) {
+            // bottom: swap all next
             onLayerSwap(widget.uuid, i, i + 1);
-          }
-        } else {
-          // top
-          if (goTo === true) {
+          } else {
+            // top
             // swap all previous
             for (let y = i; y > 0; y -= 1) {
               onLayerSwap(widget.uuid, y, y - 1);

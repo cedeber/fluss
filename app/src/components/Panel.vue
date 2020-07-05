@@ -3,37 +3,36 @@
     <div v-if="widget" class="part">
       <div class="title">Geometry</div>
       <div class="group">
-        <Input v-model:value="valX" label="X" unit="px" />
-        <Input v-model:value="valY" label="Y" unit="px" />
+        <Input v-model:value="x" label="X" unit="px" />
+        <Input v-model:value="y" label="Y" unit="px" />
       </div>
       <div class="group">
-        <Input v-model:value="valWidth" label="W" unit="px" />
-        <Input v-model:value="valHeight" label="H" unit="px" />
+        <Input v-model:value="width" label="W" unit="px" />
+        <Input v-model:value="height" label="H" unit="px" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { computed, reactive, toRefs } from "vue";
 import { useStore } from "vuex";
-import { computed, reactive, watchEffect, toRefs } from "vue";
 import Input from "./Input.vue";
 import { State } from "../store";
-import { clone } from "ramda";
 
 export default {
   components: {
     Input,
   },
   setup() {
-    const store = useStore();
+    const store = useStore<State>();
     const state = reactive({
       widget: computed(() => store.getters.widgetPanel),
+      x: computedValue("x"),
+      y: computedValue("y"),
+      width: computedValue("width"),
+      height: computedValue("height"),
     });
-    const x = computedValue("x");
-    const y = computedValue("y");
-    const valWidth = computedValue("width");
-    const valHeight = computedValue("height");
 
     function computedValue(prop: string) {
       return computed<number>({
@@ -50,42 +49,42 @@ export default {
       });
     }
 
-    return { ...toRefs(state), valX: x, valY: y, valWidth, valHeight };
+    return { ...toRefs(state) };
   },
 };
 </script>
 
 <style scoped>
 .panel {
-  position: absolute;
-  top: 48px;
-  right: 0;
-  width: 240px;
-  height: calc(100vh - 48px);
   background: var(--panel-background);
-  z-index: 9;
   border-left: 1px solid var(--border-color);
   font-size: 12px;
+  height: calc(100vh - 48px);
   overflow-y: scroll;
+  position: absolute;
+  right: 0;
+  top: 48px;
   user-select: none;
+  width: 240px;
+  z-index: 9;
 }
 
 .part {
-  width: 100%;
   border-bottom: 1px solid var(--border-color);
   padding: 8px 12px;
+  width: 100%;
 }
 
 .title {
-  text-transform: uppercase;
-  margin-bottom: 4px;
   font-size: 11px;
+  margin-bottom: 4px;
   opacity: 0.45;
+  text-transform: uppercase;
 }
 
 .group {
-  display: flex;
   /*gap: 8px;*/
+  display: flex;
   margin: 8px 0;
 }
 

@@ -6,9 +6,10 @@
 </template>
 
 <script lang="ts">
-import init, { start } from "/pkg/eukolia.js";
-import { State, MUTATE_WIDGET, MUTATE_API, MUTATE_APP_STATE } from "./store";
+import { onMounted } from "vue";
 import { useStore } from "vuex";
+import init, { start } from "/pkg/eukolia.js";
+import { State, MUTATE_API, MUTATE_APP_STATE } from "./store";
 import Panel from "./components/Panel.vue";
 import Toolbar from "./components/Toolbar.vue";
 import Layers from "./components/Layers.vue";
@@ -19,45 +20,40 @@ export default {
     Toolbar,
     Layers,
   },
-  mounted() {
-    const store = useStore<State>();
+  setup() {
+    onMounted(() => {
+      const store = useStore<State>();
 
-    // TODO deprecate
-    (window as any).update_widget_panel = function updateWidgetPanel(payload: any) {
-      // console.log("update_widget_panel", payload);
-      store.commit(MUTATE_WIDGET, payload);
-    };
+      window.update_app_state = function updateAppState(app_state, widgets) {
+        store.commit(MUTATE_APP_STATE, { app_state, widgets });
+      };
 
-    (window as any).update_app_state = function updateAppState(app_state, widgets) {
-      // console.log("update", payload);
-      store.commit(MUTATE_APP_STATE, { app_state, widgets });
-    };
+      // Load WASM
+      (async function () {
+        await init("/pkg/eukolia_bg.wasm");
+        const [
+          activate_events,
+          add_widget,
+          update_widget,
+          select_widget,
+          hover_widget,
+          toggle_visibility_widget,
+          delete_widget,
+          swap_widget,
+        ] = start();
 
-    // Load WASM
-    (async function () {
-      await init("/pkg/eukolia_bg.wasm");
-      const [
-        activate_events,
-        add_widget,
-        update_widget,
-        select_widget,
-        hover_widget,
-        toggle_visibility_widget,
-        delete_widget,
-        swap_widget,
-      ] = start();
-
-      store.commit(MUTATE_API, {
-        activate_events,
-        add_widget,
-        update_widget,
-        select_widget,
-        hover_widget,
-        toggle_visibility_widget,
-        delete_widget,
-        swap_widget,
-      });
-    })();
+        store.commit(MUTATE_API, {
+          activate_events,
+          add_widget,
+          update_widget,
+          select_widget,
+          hover_widget,
+          toggle_visibility_widget,
+          delete_widget,
+          swap_widget,
+        });
+      })();
+    });
   },
 };
 </script>

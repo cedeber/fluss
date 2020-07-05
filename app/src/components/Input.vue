@@ -6,16 +6,16 @@
       class="input"
       type="text"
       v-model="value"
-      v-on:blur="onValid"
-      v-on:change="onValid"
-      v-on:focus="onEnter"
+      @blur="onValid"
+      @change="onValid"
+      @focus="onEnter"
     />
     <div class="unit">{{ unit }}</div>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive, watchEffect, toRefs, ref, computed } from "vue";
+import { reactive, watchEffect, toRefs, ref } from "vue";
 import { useStore } from "vuex";
 import { State } from "../store";
 
@@ -26,7 +26,6 @@ interface InputProps {
 }
 
 export default {
-  name: "Input",
   props: {
     label: String,
     unit: String,
@@ -34,7 +33,7 @@ export default {
     onChange: Function,
   },
   setup(props: InputProps, { emit }) {
-    const input = ref(null);
+    const input = ref<HTMLInputElement>();
     const store = useStore<State>();
     const state = reactive({
       value: props.value,
@@ -48,20 +47,19 @@ export default {
       store.state.api.activate_events(false);
     }
 
-    function onValid(e) {
+    function onValid(event: Event) {
       // TODO Support expression
-      // TODO, reactivate wasm JS events (subscribe_events/unsubscribe_events)
-      const val = e.target.value;
-      const num = Number(val);
+      const value = (<HTMLInputElement>event.target).value;
+      const num = Number(value);
 
-      if (isNaN(num) || val === "") {
+      if (isNaN(num) || value === "") {
         // reset
         state.value = props.value;
       } else {
         emit("update:value", num);
       }
 
-      input.value.blur();
+      input.value?.blur();
       store.state.api.activate_events(true);
     }
 
@@ -72,39 +70,39 @@ export default {
 
 <style scoped>
 .container {
-  display: flex;
   align-items: baseline;
-  border: 1px solid var(--border-color);
   background: white;
   border-radius: 4px;
+  border: 1px solid var(--border-color);
+  display: flex;
 }
 
 .input {
-  font-size: 11px;
-  width: 40px;
-  text-align: right;
-  padding: 4px;
   -moz-appearance: textfield;
+  border-right: 1px solid var(--border-color);
+  font-size: 11px;
   margin: 0;
   outline: 0;
-  border-right: 1px solid var(--border-color);
+  padding: 4px;
+  text-align: right;
+  width: 40px;
 }
 
 .label {
+  color: #42434495;
   font-size: 11px;
   line-height: 1;
-  text-align: right;
   padding-right: 4px;
-  color: #42434495;
+  text-align: right;
   width: 20px;
 }
 
 .unit {
-  font-size: 11px;
-  text-align: left;
-  padding-left: 4px;
-  line-height: 1;
   color: #42434495;
+  font-size: 11px;
+  line-height: 1;
+  padding-left: 4px;
+  text-align: left;
   width: 22px;
 }
 </style>

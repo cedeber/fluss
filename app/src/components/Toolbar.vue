@@ -26,20 +26,20 @@ export default {
 
 <style scoped>
 .toolbar {
-  position: absolute;
-  top: 0;
+  /*border-bottom: 1px solid #a7a7a7;*/
+  /*box-shadow: inset 0 -1px 0 0 #bdbdbd, inset 0 1px 0 0 #f5f5f5;*/
+  align-items: center;
+  background: #e5e5e5;
+  border-bottom: 1px solid var(--border-color);
+  border-top: 1px solid white;
+  display: flex;
   height: 48px;
   left: 0;
-  width: 100vw;
-  background: #e5e5e5;
-  z-index: 9;
-  /*border-bottom: 1px solid #a7a7a7;*/
-  border-top: 1px solid white;
-  border-bottom: 1px solid var(--border-color);
-  /*box-shadow: inset 0 -1px 0 0 #bdbdbd, inset 0 1px 0 0 #f5f5f5;*/
-  display: flex;
-  align-items: center;
   padding: 0 12px;
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  z-index: 9;
 }
 
 .title {
@@ -48,26 +48,26 @@ export default {
 }
 
 .tag {
-  display: inline-block;
-  font-weight: normal;
-  font-size: 10px;
-  position: relative;
-  bottom: 8px;
-  right: 6px;
   background: var(--light-orange);
-  padding: 1px 6px;
   border-radius: 8px;
+  bottom: 8px;
   color: white;
+  display: inline-block;
+  font-size: 10px;
+  font-weight: normal;
+  padding: 1px 6px;
+  position: relative;
+  right: 6px;
 }
 
 button {
-  color: #565656;
-  padding: 4px 6px;
-  display: flex;
   border-radius: 4px;
-  transition: 300ms;
   border: 1px solid transparent;
+  color: #565656;
+  display: flex;
   font-size: 16px;
+  padding: 4px 6px;
+  transition: 300ms;
 }
 
 button:hover {
