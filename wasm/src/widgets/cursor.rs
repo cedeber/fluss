@@ -1,8 +1,5 @@
 use crate::widgets::GeometryChangeState;
-use crate::{
-    widgets::{rect::Anchor, Draw, UiGlobalState},
-    POINTER_SIZE,
-};
+use crate::widgets::{rect::Anchor, Draw, UiGlobalState};
 use nalgebra::Point2;
 use piet::{
     kurbo::{Circle, Line},
@@ -11,6 +8,8 @@ use piet::{
 use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
 use std::f64;
+
+pub static POINTER_SIZE: f64 = 8.0;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Cursor {

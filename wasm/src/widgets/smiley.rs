@@ -8,7 +8,6 @@ use piet::{
 };
 use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
-use std::cmp::min;
 use std::f64;
 use uuid::Uuid;
 

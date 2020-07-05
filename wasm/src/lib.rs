@@ -3,9 +3,8 @@ use enclose::enc;
 use nalgebra::Point2;
 use piet::{Color, RenderContext};
 use piet_web::WebRenderContext;
-use seed::{attrs, canvas, log, prelude::*, App};
+use seed::{attrs, canvas, prelude::*, App};
 use serde::{Deserialize, Serialize};
-use std::iter::FromIterator;
 use web_sys::HtmlCanvasElement;
 use widgets::{
     rect::{Rect, RectState},
@@ -130,11 +129,7 @@ extern "C" {
     fn update_app_state(app_state: &JsValue, widgets: &JsValue);
 }
 
-// --- Settings ---
-pub static POINTER_SIZE: f64 = 8.0;
-pub static RECT_BORDER_WIDTH: f64 = 1.0; // TODO Do not change
-pub static RECT_ANCHOR_RADIUS: f64 = 3.0;
-
+// --- Colors ---
 const WHITE: Color = Color::rgb8(0xFF, 0xFF, 0xFF);
 const BLUE: Color = Color::rgb8(0x00, 0x88, 0xCC);
 const PINK: Color = Color::rgb8(0xB8, 0x2E, 0xE5);
@@ -383,7 +378,7 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             if let Ok(state) = serialized_state {
                 // TODO check binary_search_by_key(&13, |&(a,b)| b)
                 let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&state.uuid));
-                if let Some(widget) = selected_widget {
+                if selected_widget.is_some() {
                     let len = model.widgets.len();
                     if state.a < len && state.b < len {
                         model.widgets.swap(state.a, state.b);

@@ -1,7 +1,7 @@
 use super::RectGeometry;
 use crate::{
-    widgets::{Draw, GeometryChangeState, UiGlobalState},
-    BLUE, PINK, POINTER_SIZE, RECT_ANCHOR_RADIUS, RECT_BORDER_WIDTH, WHITE,
+    widgets::{cursor::POINTER_SIZE, Draw, GeometryChangeState, UiGlobalState},
+    BLUE, PINK, WHITE,
 };
 use nalgebra::geometry::Point2;
 use ncollide2d::bounding_volume::{BoundingSphere, BoundingVolume};
@@ -10,8 +10,10 @@ use piet::{
     RenderContext, StrokeStyle,
 };
 use piet_web::WebRenderContext;
-use seed::log;
 use serde::{Deserialize, Serialize};
+
+static RECT_BORDER_WIDTH: f64 = 1.0;
+static RECT_ANCHOR_RADIUS: f64 = 3.0;
 
 pub enum RectState {
     Hover,
