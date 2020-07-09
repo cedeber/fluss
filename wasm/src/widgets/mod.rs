@@ -11,7 +11,7 @@ pub mod smiley;
 // --- Trait ---
 pub(crate) trait Draw<T> {
     fn update(&mut self, ui_state: &mut UiGlobalState) -> T;
-    fn change(&mut self, changes: GeometryChangeState) -> T;
+    fn change(&mut self, changes: &RectGeometry);
     fn draw(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState);
 }
 
@@ -33,11 +33,6 @@ pub struct WidgetState {
     pub geometry: RectGeometry,
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct GeometryChangeState {
-    pub geometry: RectGeometry, // TODO: save in State? Mutate Widget?
-}
-
 // --- UI State ---
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct UiGlobalState {
@@ -45,7 +40,6 @@ pub struct UiGlobalState {
     pub canvas_geometry: RectGeometry,
     pub active_widget_uuid: Option<String>,
     pub pointer_widget_uuid: Option<String>, // from mouse, during draw loop
-    pub highlight_widget_uuid: Option<String>, // from UI layers
 }
 
 // --- Other ---

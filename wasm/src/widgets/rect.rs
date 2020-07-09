@@ -1,6 +1,6 @@
 use super::RectGeometry;
 use crate::{
-    widgets::{cursor::POINTER_SIZE, Draw, GeometryChangeState, UiGlobalState},
+    widgets::{cursor::POINTER_SIZE, Draw, UiGlobalState},
     BLUE, PINK, WHITE,
 };
 use nalgebra::geometry::Point2;
@@ -12,7 +12,6 @@ use piet::{
 use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
 
-static RECT_BORDER_WIDTH: f64 = 1.0;
 static RECT_ANCHOR_RADIUS: f64 = 3.0;
 
 pub enum RectState {
@@ -60,19 +59,16 @@ impl Rect {
     }
 }
 
-impl Draw<GeometryChangeState> for Rect {
-    fn update(&mut self, ui_state: &mut UiGlobalState) -> GeometryChangeState {
+impl Draw<RectGeometry> for Rect {
+    fn update(&mut self, ui_state: &mut UiGlobalState) -> RectGeometry {
         match self.state {
-            RectState::Hover => GeometryChangeState::default(),
+            RectState::Hover => RectGeometry::default(),
             RectState::Select => self.update_select(ui_state),
         }
     }
 
-    fn change(&mut self, changes: GeometryChangeState) -> GeometryChangeState {
-        self.geometry = changes.geometry;
-        self.properties = get_properties(&changes.geometry);
-
-        GeometryChangeState::default()
+    fn change(&mut self, _changes: &RectGeometry) {
+        unimplemented!();
     }
 
     fn draw(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState) {
@@ -84,6 +80,12 @@ impl Draw<GeometryChangeState> for Rect {
 }
 
 impl Rect {
+    // Instead of change()
+    pub fn reset_geometry(&mut self, geometry: &RectGeometry) {
+        self.geometry = *geometry;
+        self.properties = get_properties(&geometry);
+    }
+
     fn draw_hover(&self, context: &mut WebRenderContext, _ui_state: &UiGlobalState) {
         // let viewport_width = ui_state.canvas_geometry.width;
         // let viewport_height = ui_state.canvas_geometry.width;
@@ -100,60 +102,14 @@ impl Rect {
             &brush,
             2.,
         );
-
-        // Stroked lines
-        // let mut line_stroke = StrokeStyle::new();
-        // line_stroke.set_dash(vec![5.0, 3.0], 0.0);
-
-        // let brush = context.solid_brush(BLUE);
-
-        // context.stroke_styled(
-        //     Line::new(
-        //         (self.properties.line_left, 0.0),
-        //         (self.properties.line_left, viewport_height),
-        //     ),
-        //     &brush,
-        //     1.,
-        //     &line_stroke,
-        // );
-
-        // context.stroke_styled(
-        //     Line::new(
-        //         (0.0, self.properties.line_top),
-        //         (viewport_width, self.properties.line_top),
-        //     ),
-        //     &brush,
-        //     1.,
-        //     &line_stroke,
-        // );
-
-        // context.stroke_styled(
-        //     Line::new(
-        //         (self.properties.line_right, 0.0),
-        //         (self.properties.line_right, viewport_height),
-        //     ),
-        //     &brush,
-        //     1.,
-        //     &line_stroke,
-        // );
-
-        // context.stroke_styled(
-        //     Line::new(
-        //         (0.0, self.properties.line_bottom),
-        //         (viewport_width, self.properties.line_bottom),
-        //     ),
-        //     &brush,
-        //     1.,
-        //     &line_stroke,
-        // );
     }
 
-    fn update_select(&mut self, ui_state: &mut UiGlobalState) -> GeometryChangeState {
-        let mut geometry_state = GeometryChangeState::default();
+    fn update_select(&mut self, ui_state: &mut UiGlobalState) -> RectGeometry {
+        let mut geometry_state = RectGeometry::default();
 
         // Anchors
         if let Some(cursor_position) = &ui_state.cursor.position {
-            let cursor_bounding = BoundingSphere::new(cursor_position.clone(), POINTER_SIZE);
+            let cursor_bounding = BoundingSphere::new(*cursor_position, POINTER_SIZE);
             let top_left_anchor_bounding = BoundingSphere::new(
                 Point2::new(self.properties.border_left, self.properties.border_top),
                 self.properties.radius,
@@ -189,7 +145,7 @@ impl Rect {
         if ui_state.cursor.down_start_position.is_some() {
             if ui_state.cursor.is_active || cursor_is_active {
                 if self.active_anchor != Anchor::None {
-                    ui_state.cursor.active_anchor = self.active_anchor.clone();
+                    ui_state.cursor.active_anchor = self.active_anchor;
                 }
 
                 if let Some(cursor_position) = &ui_state.cursor.position {
@@ -199,24 +155,24 @@ impl Rect {
 
                         match ui_state.cursor.active_anchor {
                             Anchor::TopLeft => {
-                                geometry_state.geometry.x = x;
-                                geometry_state.geometry.y = y;
-                                geometry_state.geometry.width = -x;
-                                geometry_state.geometry.height = -y;
+                                geometry_state.x = x;
+                                geometry_state.y = y;
+                                geometry_state.width = -x;
+                                geometry_state.height = -y;
                             }
                             Anchor::TopRight => {
-                                geometry_state.geometry.y = y;
-                                geometry_state.geometry.width = x;
-                                geometry_state.geometry.height = -y;
+                                geometry_state.y = y;
+                                geometry_state.width = x;
+                                geometry_state.height = -y;
                             }
                             Anchor::BottomRight => {
-                                geometry_state.geometry.width = x;
-                                geometry_state.geometry.height = y;
+                                geometry_state.width = x;
+                                geometry_state.height = y;
                             }
                             Anchor::BottomLeft => {
-                                geometry_state.geometry.x = x;
-                                geometry_state.geometry.width = -x;
-                                geometry_state.geometry.height = y;
+                                geometry_state.x = x;
+                                geometry_state.width = -x;
+                                geometry_state.height = y;
                             }
                             _ => {}
                         }
@@ -237,7 +193,7 @@ impl Rect {
         let viewport_height = ui_state.canvas_geometry.width;
         let active_anchor = self.active_anchor;
 
-        // Rectangle
+        // -> Rectangle
         let brush = context.solid_brush(PINK);
         context.stroke(
             Rectangle::new(
@@ -247,10 +203,10 @@ impl Rect {
                 self.properties.border_bottom,
             ),
             &brush,
-            RECT_BORDER_WIDTH,
+            1.0,
         );
 
-        // Anchors
+        // -> Anchors
         let fill_brush = context.solid_brush(WHITE);
         let fill_brush_active = context.solid_brush(PINK);
 
@@ -334,25 +290,19 @@ impl Rect {
             2.,
         );
 
-        // Stroked lines
+        // -> Stroked lines
         let mut line_stroke = StrokeStyle::new();
         line_stroke.set_dash(vec![5.0, 3.0], 0.0);
         let brush = context.solid_brush(PINK);
 
-        context.stroke_styled(
-            Line::new(
-                (self.properties.line_left, 0.0),
-                (self.properties.line_left, viewport_height),
-            ),
-            &brush,
-            1.,
-            &line_stroke,
-        );
-
+        // Top
         context.stroke_styled(
             Line::new(
                 (0.0, self.properties.line_top),
-                (viewport_width, self.properties.line_top),
+                (
+                    self.properties.line_left - RECT_ANCHOR_RADIUS * 2.,
+                    self.properties.line_top,
+                ),
             ),
             &brush,
             1.,
@@ -361,18 +311,92 @@ impl Rect {
 
         context.stroke_styled(
             Line::new(
-                (self.properties.line_right, 0.0),
-                (self.properties.line_right, viewport_height),
+                (viewport_width, self.properties.line_top),
+                (
+                    self.properties.line_right + RECT_ANCHOR_RADIUS * 2.,
+                    self.properties.line_top,
+                ),
             ),
             &brush,
             1.,
             &line_stroke,
         );
 
+        // Bottom
         context.stroke_styled(
             Line::new(
                 (0.0, self.properties.line_bottom),
+                (
+                    self.properties.line_left - RECT_ANCHOR_RADIUS * 2.,
+                    self.properties.line_bottom,
+                ),
+            ),
+            &brush,
+            1.,
+            &line_stroke,
+        );
+
+        context.stroke_styled(
+            Line::new(
                 (viewport_width, self.properties.line_bottom),
+                (
+                    self.properties.line_right + RECT_ANCHOR_RADIUS * 2.,
+                    self.properties.line_bottom,
+                ),
+            ),
+            &brush,
+            1.,
+            &line_stroke,
+        );
+
+        // Left
+        context.stroke_styled(
+            Line::new(
+                (self.properties.line_left, 0.0),
+                (
+                    self.properties.line_left,
+                    self.properties.border_top - RECT_ANCHOR_RADIUS * 2.,
+                ),
+            ),
+            &brush,
+            1.,
+            &line_stroke,
+        );
+
+        context.stroke_styled(
+            Line::new(
+                (self.properties.line_left, viewport_height),
+                (
+                    self.properties.line_left,
+                    self.properties.border_bottom + RECT_ANCHOR_RADIUS * 2.,
+                ),
+            ),
+            &brush,
+            1.,
+            &line_stroke,
+        );
+
+        // Right
+        context.stroke_styled(
+            Line::new(
+                (self.properties.line_right, 0.0),
+                (
+                    self.properties.line_right,
+                    self.properties.border_top - RECT_ANCHOR_RADIUS * 2.,
+                ),
+            ),
+            &brush,
+            1.,
+            &line_stroke,
+        );
+
+        context.stroke_styled(
+            Line::new(
+                (self.properties.line_right, viewport_height),
+                (
+                    self.properties.line_right,
+                    self.properties.border_bottom + RECT_ANCHOR_RADIUS * 2.,
+                ),
             ),
             &brush,
             1.,
@@ -402,6 +426,6 @@ fn get_properties(geometry: &RectGeometry) -> Properties {
         line_top,
         line_right,
         line_bottom,
-        radius: RECT_ANCHOR_RADIUS + RECT_BORDER_WIDTH / 2.,
+        radius: RECT_ANCHOR_RADIUS + 0.5,
     }
 }

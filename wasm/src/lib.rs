@@ -1,4 +1,3 @@
-use crate::widgets::GeometryChangeState;
 use enclose::enc;
 use nalgebra::Point2;
 use piet::{Color, RenderContext};
@@ -210,7 +209,7 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             model.event_streams.clear();
         }
         Msg::MouseMoved(event) => {
-            model.app_state.cursor.previous_position = model.app_state.cursor.position.clone();
+            model.app_state.cursor.previous_position = model.app_state.cursor.position;
             model.app_state.cursor.position = Some(Point2::new(
                 event.client_x().into(),
                 event.client_y().into(),
@@ -333,7 +332,7 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             orders.send_msg(Msg::Draw);
         }
         Msg::HoverWidget(uuid) => {
-            model.app_state.highlight_widget_uuid = uuid;
+            model.app_state.pointer_widget_uuid = uuid;
             orders.send_msg(Msg::Draw);
         }
         Msg::UpdateWidget(state) => {
@@ -398,7 +397,7 @@ fn draw(
     mut app_state: &mut UiGlobalState,
     widgets: &mut [Smiley],
 ) {
-    // TODO It looks un-optimized to do that?
+    // TODO Is it un-optimized to do that?
     let window = seed::browser::util::window();
     let canvas = canvas.get().expect("get canvas element");
     let context = seed::canvas_context_2d(&canvas);
@@ -409,76 +408,70 @@ fn draw(
 
     // --- Update ---
 
-    // Updated Widgets
+    // -> Updated Widgets
     let mut widgets_states: Vec<WidgetState> = vec![];
 
     // Need to be able to hover or select it from the layer
     // for widget in widgets.iter_mut().filter(|w| w.visible).rev() {
     for widget in widgets.iter_mut().rev() {
-        // FIXME needed?
         widgets_states.push(widget.update(&mut app_state));
     }
 
-    // Update Rects around the widgets
-    let mut selected_geometry: Option<&WidgetState> = None;
-    let mut hovered_geometry: Option<&WidgetState> = None;
+    // -> Update Rects around the widgets
+    let mut selected_widget_state: Option<&WidgetState> = None;
+    let mut hovered_widget_state: Option<&WidgetState> = None;
 
     for state in widgets_states.iter() {
         let mut do_not_hover = false;
 
+        // Selected Widget from canvas/pointer
+        if state.selected {
+            app_state.active_widget_uuid = Some(String::from(&state.uuid));
+        }
+
+        // Maybe selected Widget from layers (or from canvas)
         if let Some(uuid) = &app_state.active_widget_uuid {
             if uuid.eq(&state.uuid) {
-                selected_geometry = Some(state);
+                selected_widget_state = Some(state);
                 do_not_hover = true;
             }
         }
 
-        if let Some(uuid) = &app_state.highlight_widget_uuid {
+        // Hovered Widget from canvas/pointer
+        if state.hovered {
+            app_state.pointer_widget_uuid = Some(String::from(&state.uuid));
+        }
+
+        // Maybe hovered Widget from layers (or from canvas)
+        if let Some(uuid) = &app_state.pointer_widget_uuid {
             if !do_not_hover && uuid.eq(&state.uuid) {
-                hovered_geometry = Some(state);
+                hovered_widget_state = Some(state);
             }
         }
 
-        if state.selected {
-            selected_geometry = Some(state);
-            app_state.active_widget_uuid = Some(String::from(&state.uuid));
-            do_not_hover = true;
-        }
-
+        // INFO: Keep here, the above test happens sometimes twice and fails the hover Rect
         if state.hovered {
-            hovered_geometry = if do_not_hover { None } else { Some(state) };
-            app_state.pointer_widget_uuid = Some(String::from(&state.uuid));
+            hovered_widget_state = if do_not_hover { None } else { Some(state) };
         }
     }
 
-    if hovered_geometry.is_none() {
-        app_state.pointer_widget_uuid = None;
-    }
-
-    // Update selection Rect
+    // -> Update Selected Widget from Rect (anchors)
     let mut selection_rect: Option<Rect> = None;
 
-    if let Some(state) = selected_geometry {
+    if let Some(state) = selected_widget_state {
         let mut rect = Rect::new(state.geometry, RectState::Select);
-        let change_state = rect.update(&mut app_state);
+        // Difference between previous and current frame for the selected Rect (from pointer)
+        // FIXME maybe return None (see Draw trait)
+        let geometry_difference = rect.update(&mut app_state);
 
         if let Some(select_widget_uuid) = &app_state.active_widget_uuid {
             let selected_widget = widgets.iter_mut().find(|w| w.uuid.eq(select_widget_uuid));
 
             if let Some(widget) = selected_widget {
-                // Update Widget from anchor
-                let new_state = widget.change(change_state);
-
-                rect.change(GeometryChangeState {
-                    geometry: new_state.geometry,
-                });
-
-                // TODO Update Rect from anchor
-                // rect.change(RectGeometry {
-                //     x: rect.geometry.x + change_state.geometry.x,
-                //     y: rect.geometry.y + change_state.geometry.y,
-                //     ..rect.geometry
-                // });
+                // Update Widget from Rect (anchors)
+                widget.change(&geometry_difference);
+                // Reset geometry for selected Rect
+                rect.reset_geometry(&widget.geometry);
             }
         }
 
@@ -487,42 +480,40 @@ fn draw(
 
     // --- Draw ---
 
-    // Draw all widgets
+    // -> Draw all visible widgets
     for widget in widgets.iter_mut().filter(|w| w.visible).rev() {
-        // FIXME: Used returned values to update app_state
         widget.draw(&mut ctx, &app_state);
     }
 
-    // Draw the selection Rect
+    // -> Draw the selection Rect
     if let Some(rect) = selection_rect {
         rect.draw(&mut ctx, &app_state);
     }
 
-    // Draw the hover Rect (empty update)
-    if let Some(state) = hovered_geometry {
+    // -> Draw the hover Rect
+    if let Some(state) = hovered_widget_state {
+        // Avoid hovering Widget while doing modification
         if cursor.down_start_position.is_none() {
             let rect = Rect::new(state.geometry, RectState::Hover);
             rect.draw(&mut ctx, &app_state);
         }
     }
 
-    // Draw the cursor
+    // -> Draw the cursor
     cursor.draw(&mut ctx, &app_state);
 
-    // Clean
-    // log! {app_state.highlight_widget_uuid};
-    app_state.highlight_widget_uuid = None;
+    // --- Update Web UI / JavaScript ---
+    update_app_state(
+        &JsValue::from_serde(&app_state).unwrap(),
+        &JsValue::from_serde(&widgets).unwrap(),
+    );
+
+    // --- Reset ---
+    app_state.pointer_widget_uuid = None;
 }
 
 // `view` describes what to display.
 pub fn view(model: &Model) -> Node<Msg> {
-    // JavaScript
-    // let widgets: Vec<&Smiley> = Vec::from_iter(model.widgets.iter().filter(|w| w.visible));
-    update_app_state(
-        &JsValue::from_serde(&model.app_state).unwrap(),
-        &JsValue::from_serde(&model.widgets).unwrap(),
-    );
-
     canvas![
         el_ref(&model.canvas),
         attrs![

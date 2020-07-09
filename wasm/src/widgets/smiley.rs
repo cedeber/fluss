@@ -1,5 +1,5 @@
 use super::{RectGeometry, UiGlobalState, WidgetState};
-use crate::widgets::{Draw, GeometryChangeState};
+use crate::widgets::Draw;
 use nalgebra::geometry::Point2;
 use ncollide2d::bounding_volume::{BoundingSphere, BoundingVolume};
 use piet::{
@@ -10,12 +10,6 @@ use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
 use std::f64;
 use uuid::Uuid;
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Geometry {
-    pub center: Point2<f64>,
-    pub radius: f64,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Smiley {
@@ -39,7 +33,7 @@ impl Smiley {
             name: String::from(name),
             uuid: Uuid::new_v4().to_string(),
             visible: true,
-            geometry: geometry.clone(),
+            geometry,
             initial_geometry: geometry,
         }
     }
@@ -47,23 +41,22 @@ impl Smiley {
 
 impl Draw<WidgetState> for Smiley {
     fn update(&mut self, ui_state: &mut UiGlobalState) -> WidgetState {
-        // Geometry
-        let (x, y, radius) = get_widget_geometry(&self.geometry);
-
-        // State
-        let mut state = WidgetState::default();
-        state.uuid = String::from(&self.uuid);
-        state.hovered = false;
-        state.selected = false;
-
-        // Widget bounding sphere
-        let current_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
+        let mut state = WidgetState {
+            uuid: String::from(&self.uuid),
+            ..WidgetState::default()
+        };
 
         // This is behavior with the cursor, only do if the widget is visible
         if self.visible {
+            // Geometry
+            let (x, y, radius) = get_widget_geometry(&self.geometry);
+
+            // TODO not generic
+            let current_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
+
             // Hovered: Test with current pointer position
             if let Some(cursor_position) = &ui_state.cursor.position {
-                let current_cursor_bounding = BoundingSphere::new(cursor_position.clone(), 1.0);
+                let current_cursor_bounding = BoundingSphere::new(*cursor_position, 1.0);
                 state.hovered = current_widget_bounding.intersects(&current_cursor_bounding)
                     && !ui_state.cursor.is_active;
             }
@@ -75,12 +68,13 @@ impl Draw<WidgetState> for Smiley {
             }
 
             if let Some(pos) = &ui_state.cursor.down_start_position {
+                // TODO not generic
                 let (x, y, radius) = get_widget_geometry(&self.initial_geometry);
-                let mousedown_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
-                let initial_cursor_bounding = BoundingSphere::new(pos.clone(), 1.0);
+                let initial_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
+                let initial_cursor_bounding = BoundingSphere::new(*pos, 1.0);
 
                 let is_initial_mouse_over =
-                    mousedown_widget_bounding.intersects(&initial_cursor_bounding);
+                    initial_widget_bounding.intersects(&initial_cursor_bounding);
 
                 if is_initial_mouse_over && !ui_state.cursor.is_active {
                     state.selected = true;
@@ -98,33 +92,21 @@ impl Draw<WidgetState> for Smiley {
                 }
             } else {
                 // mouseout or mouseup
-                self.initial_geometry = self.geometry.clone();
+                self.initial_geometry = self.geometry;
             }
         }
 
-        state.geometry = self.geometry.clone();
-        // self.state = state.clone();
+        state.geometry = self.geometry;
         state
     }
 
-    // TODO: Need return?
-    fn change(&mut self, changes: GeometryChangeState) -> WidgetState {
+    fn change(&mut self, changes: &RectGeometry) {
         self.geometry = RectGeometry {
-            x: self.geometry.x + changes.geometry.x,
-            y: self.geometry.y + changes.geometry.y,
-            width: self.geometry.width + changes.geometry.width,
-            height: self.geometry.height + changes.geometry.height,
+            x: self.geometry.x + changes.x,
+            y: self.geometry.y + changes.y,
+            width: self.geometry.width + changes.width,
+            height: self.geometry.height + changes.height,
         };
-
-        //self.state.geometry = self.geometry.clone();
-
-        //self.state.clone()
-        WidgetState {
-            uuid: self.uuid.clone(),
-            selected: false,
-            hovered: false,
-            geometry: self.geometry.clone(), // !important
-        }
     }
 
     fn draw(&self, context: &mut WebRenderContext, _ui_state: &UiGlobalState) {

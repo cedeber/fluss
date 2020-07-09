@@ -1,4 +1,4 @@
-use crate::widgets::GeometryChangeState;
+use crate::widgets::RectGeometry;
 use crate::widgets::{rect::Anchor, Draw, UiGlobalState};
 use nalgebra::Point2;
 use piet::{
@@ -37,7 +37,7 @@ impl Draw<()> for Cursor {
         unimplemented!()
     }
 
-    fn change(&mut self, _changes: GeometryChangeState) {
+    fn change(&mut self, _changes: &RectGeometry) {
         unimplemented!()
     }
 
