@@ -104,6 +104,7 @@ impl Rect {
         );
     }
 
+    /// Rect with Anchors -> Change Widget Geometry
     fn update_select(&mut self, ui_state: &mut UiGlobalState) -> RectGeometry {
         let mut geometry_state = RectGeometry::default();
 
