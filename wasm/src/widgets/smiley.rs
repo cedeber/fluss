@@ -1,7 +1,10 @@
-use super::{RectGeometry, UiGlobalState, WidgetState};
+use super::{
+    utils::{is_hovered, is_selected_and_move},
+    RectGeometry, UiGlobalState, WidgetState,
+};
 use crate::widgets::Draw;
 use nalgebra::geometry::Point2;
-use ncollide2d::bounding_volume::{BoundingSphere, BoundingVolume};
+use ncollide2d::bounding_volume::BoundingSphere;
 use piet::{
     kurbo::{Arc, Circle, Point},
     Color, RenderContext,
@@ -21,7 +24,7 @@ pub struct Smiley {
 }
 
 impl Smiley {
-    pub(crate) fn new(name: &str, center: (f64, f64), radius: f64) -> Self {
+    pub fn new(name: &str, center: (f64, f64), radius: f64) -> Self {
         let geometry = RectGeometry {
             x: center.0 - radius,
             y: center.1 - radius,
@@ -48,50 +51,25 @@ impl Draw<WidgetState> for Smiley {
 
         // This is behavior with the cursor, only do if the widget is visible
         if self.visible {
-            // Geometry
             let (x, y, radius) = get_widget_geometry(&self.geometry);
-
-            // TODO not generic
             let current_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
+            let (x, y, radius) = get_widget_geometry(&self.initial_geometry);
+            let initial_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
 
-            // Hovered: Test with current pointer position
-            if let Some(cursor_position) = &ui_state.cursor.position {
-                let current_cursor_bounding = BoundingSphere::new(*cursor_position, 1.0);
-                state.hovered = current_widget_bounding.intersects(&current_cursor_bounding)
-                    && !ui_state.cursor.is_active;
-            }
+            let (is_selected, move_point) = is_selected_and_move(
+                &self.uuid,
+                &ui_state.active_widget_uuid,
+                &ui_state.cursor,
+                &initial_widget_bounding,
+            );
 
-            // Selected
-            if let Some(state_uuid) = &ui_state.active_widget_uuid {
-                // Set selected if it was already selected
-                state.selected = self.uuid.eq(state_uuid);
-            }
+            state.hovered = is_hovered(&ui_state.cursor, &current_widget_bounding);
+            state.selected = is_selected;
 
-            if let Some(pos) = &ui_state.cursor.down_start_position {
-                // TODO not generic
-                let (x, y, radius) = get_widget_geometry(&self.initial_geometry);
-                let initial_widget_bounding = BoundingSphere::new(Point2::new(x, y), radius);
-                let initial_cursor_bounding = BoundingSphere::new(*pos, 1.0);
-
-                let is_initial_mouse_over =
-                    initial_widget_bounding.intersects(&initial_cursor_bounding);
-
-                if is_initial_mouse_over && !ui_state.cursor.is_active {
-                    state.selected = true;
-
-                    if let Some(cursor_position) = &ui_state.cursor.position {
-                        if let Some(uuid) = &ui_state.active_widget_uuid {
-                            if self.uuid == *uuid {
-                                self.geometry.x =
-                                    self.initial_geometry.x + (cursor_position.x - pos.x);
-                                self.geometry.y =
-                                    self.initial_geometry.y + (cursor_position.y - pos.y);
-                            }
-                        }
-                    }
-                }
+            if ui_state.cursor.down_start_position.is_some() {
+                self.geometry.x = self.initial_geometry.x + move_point.x;
+                self.geometry.y = self.initial_geometry.y + move_point.y;
             } else {
-                // mouseout or mouseup
                 self.initial_geometry = self.geometry;
             }
         }

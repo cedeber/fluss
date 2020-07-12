@@ -7,9 +7,10 @@ use std::f64;
 pub mod cursor;
 pub mod rect;
 pub mod smiley;
+pub mod utils;
 
 // --- Trait ---
-pub(crate) trait Draw<T> {
+pub trait Draw<T> {
     fn update(&mut self, ui_state: &mut UiGlobalState) -> T;
     fn change(&mut self, changes: &RectGeometry);
     fn draw(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState);
