@@ -177,10 +177,12 @@ export default {
             // up, down: single swap
             onLayerSwap(widget.uuid, i, i + direction);
             // don't swap next
-            goTo = false;
+            goTo = direction > 0;
           } else if (direction > 0) {
             // bottom: swap all next
             onLayerSwap(widget.uuid, i, i + 1);
+            // don't swap next
+            goTo = false;
           } else {
             // top
             // swap all previous
