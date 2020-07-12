@@ -4,5 +4,6 @@ build
 *.lock
 *lock.*
 node_modules
+.vscode
 .idea
 .DS_Store
