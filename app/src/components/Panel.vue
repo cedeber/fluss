@@ -7,8 +7,8 @@
         <Input v-model:value="y" label="Y" unit="px" />
       </div>
       <div class="group">
-        <Input v-model:value="width" label="W" unit="px" />
-        <Input v-model:value="height" label="H" unit="px" />
+        <Input v-model:value="width" label="W" unit="px" :min="1" />
+        <Input v-model:value="height" label="H" unit="px" :min="1" />
       </div>
     </div>
   </div>

@@ -23,6 +23,8 @@ interface InputProps {
   label: string;
   unit: string;
   value: number;
+  min?: number;
+  max?: number;
 }
 
 export default {
@@ -31,6 +33,8 @@ export default {
     unit: String,
     value: Number,
     onChange: Function,
+    min: { type: Number, required: false },
+    max: { type: Number, required: false },
   },
   setup(props: InputProps, { emit }) {
     const input = ref<HTMLInputElement>();
@@ -52,7 +56,12 @@ export default {
       const value = (<HTMLInputElement>event.target).value;
       const num = Number(value);
 
-      if (isNaN(num) || value === "") {
+      if (
+        isNaN(num) ||
+        value === "" ||
+        (props.min && num < props.min) ||
+        (props.max && num > props.max)
+      ) {
         // reset
         state.value = props.value;
       } else {
