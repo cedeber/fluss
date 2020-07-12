@@ -82,8 +82,8 @@ impl Draw<WidgetState> for Smiley {
         self.geometry = RectGeometry {
             x: self.geometry.x + changes.x,
             y: self.geometry.y + changes.y,
-            width: self.geometry.width + changes.width,
-            height: self.geometry.height + changes.height,
+            width: (self.geometry.width + changes.width).abs(),
+            height: (self.geometry.height + changes.height).abs(),
         };
     }
 
