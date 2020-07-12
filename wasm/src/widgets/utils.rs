@@ -20,9 +20,9 @@ pub fn is_selected_and_move(
     active_widget_uuid: &Option<String>,
     cursor: &Cursor,
     initial_widget_bounding: &BoundingSphere<f64>,
-) -> (bool, Point2<f64>) {
+) -> (bool, Option<Point2<f64>>) {
     let mut is_selected = false;
-    let mut move_point = Point2::new(0., 0.);
+    let mut move_point = None;
 
     if let Some(state_uuid) = active_widget_uuid {
         // Set selected if it was already selected
@@ -40,8 +40,10 @@ pub fn is_selected_and_move(
             if let Some(cursor_position) = cursor.position {
                 if let Some(active_uuid) = active_widget_uuid {
                     if uuid == active_uuid {
-                        move_point.x = cursor_position.x - pos.x;
-                        move_point.y = cursor_position.y - pos.y;
+                        move_point = Some(Point2::new(
+                            cursor_position.x - pos.x,
+                            cursor_position.y - pos.y,
+                        ));
                     }
                 }
             }

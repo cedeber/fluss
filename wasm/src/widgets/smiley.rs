@@ -66,9 +66,11 @@ impl Draw<WidgetState> for Smiley {
             state.hovered = is_hovered(&ui_state.cursor, &current_widget_bounding);
             state.selected = is_selected;
 
-            if ui_state.cursor.down_start_position.is_some() {
-                self.geometry.x = self.initial_geometry.x + move_point.x;
-                self.geometry.y = self.initial_geometry.y + move_point.y;
+            if let Some(move_point) = move_point {
+                if ui_state.cursor.down_start_position.is_some() {
+                    self.geometry.x = self.initial_geometry.x + move_point.x;
+                    self.geometry.y = self.initial_geometry.y + move_point.y;
+                }
             } else {
                 self.initial_geometry = self.geometry;
             }
