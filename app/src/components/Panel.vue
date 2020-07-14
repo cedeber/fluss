@@ -11,6 +11,11 @@
         <Input v-model:value="height" label="H" unit="px" :min="1" />
       </div>
     </div>
+    <div v-if="widget" class="part">
+      <div class="group">
+        <button>Export</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -56,8 +61,8 @@ export default {
 
 <style scoped>
 .panel {
-  background: var(--panel-background);
-  border-left: 1px solid var(--border-color);
+  background: white;
+  border-left: 2px solid var(--text-color);
   font-size: 12px;
   height: calc(100vh - 48px);
   overflow-y: scroll;
@@ -70,15 +75,13 @@ export default {
 }
 
 .part {
-  border-bottom: 1px solid var(--border-color);
   padding: 8px 12px;
   width: 100%;
 }
 
 .title {
-  font-size: 11px;
+  font-size: 12px;
   margin-bottom: 4px;
-  opacity: 0.45;
   text-transform: uppercase;
 }
 
@@ -90,5 +93,18 @@ export default {
 
 .group > *:not(:last-child) {
   margin-right: 8px;
+}
+
+button {
+  background: var(--text-color);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px;
+  transition: background 300ms;
+  text-transform: uppercase;
+}
+
+button:hover {
+  background: var(--purple);
 }
 </style>

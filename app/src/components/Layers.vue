@@ -1,19 +1,5 @@
 <template>
   <div class="left-panel">
-    <div class="search">
-      <i class="fas fa-search fa-sm" />
-      <input
-        type="text"
-        @blur="onExit"
-        @change="onExit"
-        @focus="onEnter"
-        v-model="searchFor"
-        placeholder="Search Layers"
-      />
-      <div class="clear-search" @click="onClearSearch" v-if="searchFor">
-        <i class="fas fa-times-circle fa-sm" />
-      </div>
-    </div>
     <div class="layer-tools">
       <div class="layer-tool" @click="onLayerMove(-2)">
         <i class="fas fa-arrow-up fa-sm" />
@@ -63,6 +49,20 @@
         <div class="tool" @click.stop="onHide(widget.uuid)">
           <i class="fas fa-eye-slash fa-xs" />
         </div>
+      </div>
+    </div>
+    <div class="search" :class="{ active: searchFor }">
+      <i class="fas fa-search fa-sm" />
+      <input
+        type="text"
+        @blur="onExit"
+        @change="onExit"
+        @focus="onEnter"
+        v-model="searchFor"
+        placeholder="Search Layers"
+      />
+      <div class="clear-search" @click="onClearSearch" v-if="searchFor">
+        <i class="fas fa-times-circle fa-sm" />
       </div>
     </div>
   </div>
@@ -221,9 +221,9 @@ export default {
   left: 0;
   width: 240px;
   height: calc(100vh - 48px);
-  background: var(--panel-background);
+  background: white;
   z-index: 9;
-  border-right: 1px solid var(--border-color);
+  border-right: 2px solid var(--text-color);
   display: flex;
   flex-direction: column;
 }
@@ -283,7 +283,11 @@ export default {
 
 .tool {
   display: none;
-  opacity: 0.7;
+  color: var(--blue-grey);
+}
+
+.selected .tool {
+  color: white;
 }
 
 .layer.hidden:not(.edit) .tool,
@@ -308,10 +312,17 @@ input {
 
 .search {
   background: white;
-  border-bottom: 1px solid var(--border-color);
   display: flex;
-  padding: 6px 3px;
+  padding: 8px 4px;
   align-items: center;
+  background: var(--purple);
+  border-top: 2px solid white;
+  color: white;
+}
+
+.search input {
+  background: transparent;
+  color: white;
 }
 
 .search .clear-search,
@@ -320,12 +331,16 @@ input {
   line-height: 1;
 }
 
+.search.active {
+  background: var(--green);
+}
+
 .layer-tools {
   display: flex;
-  padding: 4px 6px;
-  background: #e5e5e5;
-  border-bottom: 1px solid var(--border-color);
-  justify-content: center;
+  padding: 8px 6px;
+  justify-content: flex-end;
+  background: var(--yellow);
+  border-bottom: 2px solid white;
 }
 
 .layer-tool {
@@ -337,8 +352,9 @@ input {
 }
 
 .not-found {
-  opacity: 0.5;
+  font-weight: bold;
   word-break: break-word;
-  font-size: 13px;
+  font-size: 12px;
+  color: var(--red);
 }
 </style>

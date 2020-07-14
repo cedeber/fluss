@@ -29,8 +29,8 @@ export default {
   /*border-bottom: 1px solid #a7a7a7;*/
   /*box-shadow: inset 0 -1px 0 0 #bdbdbd, inset 0 1px 0 0 #f5f5f5;*/
   align-items: center;
-  background: #e5e5e5;
-  border-bottom: 1px solid var(--border-color);
+  background: white;
+  border-bottom: 2px solid var(--text-color);
   border-top: 1px solid white;
   display: flex;
   height: 48px;
@@ -62,16 +62,16 @@ export default {
 
 button {
   border-radius: 4px;
-  border: 1px solid transparent;
-  color: #565656;
+  color: var(--text-color);
   display: flex;
   font-size: 16px;
   padding: 4px 6px;
   transition: 300ms;
+  background: white;
+  transition: box-shadow 300ms;
 }
 
 button:hover {
-  background: #f6f6f6;
-  border-color: #c2c2c2;
+  box-shadow: 0 0 0 2px var(--text-color);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" :class="{ focus: isFocus }">
     <div class="label">{{ label }}</div>
     <input
       ref="input"
@@ -41,6 +41,7 @@ export default {
     const store = useStore<State>();
     const state = reactive({
       value: props.value,
+      isFocus: false,
     });
 
     watchEffect(() => {
@@ -49,6 +50,7 @@ export default {
 
     function onEnter() {
       store.state.api.activate_events(false);
+      state.isFocus = true;
     }
 
     function onValid(event: Event) {
@@ -70,6 +72,7 @@ export default {
 
       input.value?.blur();
       store.state.api.activate_events(true);
+      state.isFocus = false;
     }
 
     return { ...props, ...toRefs(state), onValid, onEnter, input };
@@ -82,13 +85,16 @@ export default {
   align-items: baseline;
   background: white;
   border-radius: 4px;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--text-color);
   display: flex;
+}
+
+.container.focus {
+  border-color: var(--purple);
 }
 
 .input {
   -moz-appearance: textfield;
-  border-right: 1px solid var(--border-color);
   font-size: 11px;
   margin: 0;
   outline: 0;
@@ -106,8 +112,12 @@ export default {
   width: 20px;
 }
 
+.container.focus .label {
+  color: var(--purple);
+}
+
 .unit {
-  color: #42434495;
+  color: var(--text-color);
   font-size: 11px;
   line-height: 1;
   padding-left: 4px;
