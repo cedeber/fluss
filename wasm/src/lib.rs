@@ -401,6 +401,12 @@ fn draw(
     let window = seed::browser::util::window();
     let canvas = canvas.get().expect("get canvas element");
     let context = seed::canvas_context_2d(&canvas);
+
+    let dpr = window.device_pixel_ratio();
+    canvas.set_width((app_state.canvas_geometry.width * dpr) as u32);
+    canvas.set_height((app_state.canvas_geometry.height * dpr) as u32);
+    let _ = context.scale(dpr, dpr);
+
     let mut ctx = WebRenderContext::new(context, window);
     let cursor = app_state.cursor;
 
