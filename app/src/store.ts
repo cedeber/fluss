@@ -15,13 +15,20 @@ export interface Widget {
   visible: boolean;
 }
 
+export interface Settings {
+  keep_ratio: boolean;
+}
+
 export interface State {
   api: any;
   app: {
+    // ui_state: UiGlobalState
     cursor: any; // TODO
     canvas_geometry: any; // TODO
-    pointer_widget_uuid: string | null;
     active_widget_uuid: string | null;
+    pointer_widget_uuid: string | null;
+    settings: Settings;
+    // widgets: Vec<Smiley>
     widgets: Widget[];
   } | null;
 }
@@ -42,6 +49,7 @@ const getters = {
 // --- Mutations: MUTATE ---
 export const MUTATE_API = "MUTATE_API";
 export const MUTATE_APP_STATE = "MUTATE_APP_STATE";
+const MUTATE_SETTINGS = "MUTATE_SETTINGS";
 
 const mutations = {
   [MUTATE_API](state: State, payload: State["api"]) {
@@ -52,6 +60,11 @@ const mutations = {
     let app_state = payload.app_state;
     app_state["widgets"] = payload.widgets;
     state.app = app_state;
+  },
+  [MUTATE_SETTINGS](state: State, payload: Settings) {
+    if (state.app) {
+      state.app.settings = payload;
+    }
   },
 };
 

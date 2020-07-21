@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :class="{ focus: isFocus }">
+  <div class="container" :class="{ focus: isFocus, disabled }">
     <div class="label">{{ label }}</div>
     <input
       ref="input"
@@ -9,8 +9,9 @@
       @blur="onValid"
       @change="onValid"
       @focus="onEnter"
+      :disabled="disabled"
     />
-    <div class="unit">{{ unit }}</div>
+    <!--div class="unit">{{ unit }}</div-->
   </div>
 </template>
 
@@ -25,6 +26,7 @@ interface InputProps {
   value: number;
   min?: number;
   max?: number;
+  disabled: boolean;
 }
 
 export default {
@@ -35,6 +37,7 @@ export default {
     onChange: Function,
     min: { type: Number, required: false },
     max: { type: Number, required: false },
+    disabled: Boolean,
   },
   setup(props: InputProps, { emit }) {
     const input = ref<HTMLInputElement>();
@@ -85,12 +88,16 @@ export default {
   align-items: baseline;
   background: white;
   border-radius: 4px;
-  border: 2px solid var(--text-color);
+  border: 2px solid var(--primary-ink);
   display: flex;
 }
 
 .container.focus {
-  border-color: var(--purple);
+  border-color: var(--blue-50);
+}
+
+.container.disabled {
+  opacity: 0.5;
 }
 
 .input {
@@ -98,26 +105,25 @@ export default {
   font-size: 11px;
   margin: 0;
   outline: 0;
-  padding: 4px;
+  padding: 4px 4px 4px 0;
   text-align: right;
   width: 40px;
 }
 
 .label {
-  color: #42434495;
+  color: var(--primary-ink);
   font-size: 11px;
   line-height: 1;
-  padding-right: 4px;
-  text-align: right;
-  width: 20px;
+  text-align: center;
+  width: 16px;
 }
 
 .container.focus .label {
-  color: var(--purple);
+  color: var(--blue-70);
 }
 
 .unit {
-  color: var(--text-color);
+  color: var(--primary-ink);
   font-size: 11px;
   line-height: 1;
   padding-left: 4px;

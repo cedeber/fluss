@@ -5,7 +5,6 @@ use piet::{
     kurbo::{Circle, Line},
     Color, RenderContext,
 };
-use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
 use std::f64;
 
@@ -41,7 +40,7 @@ impl Draw<()> for Cursor {
         unimplemented!()
     }
 
-    fn draw(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState) {
+    fn draw(&self, context: &mut impl RenderContext, ui_state: &UiGlobalState) {
         if let Some(position) = &self.position {
             // Add 0.5px to keep sharpness
             let x = position.x;

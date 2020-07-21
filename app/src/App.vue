@@ -40,6 +40,7 @@ export default {
           toggle_visibility_widget,
           delete_widget,
           swap_widget,
+          update_settings,
         ] = start();
 
         store.commit(MUTATE_API, {
@@ -51,6 +52,7 @@ export default {
           toggle_visibility_widget,
           delete_widget,
           swap_widget,
+          update_settings,
         });
       })();
     });

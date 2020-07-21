@@ -8,7 +8,7 @@ use web_sys::HtmlCanvasElement;
 use widgets::{
     rect::{Rect, RectState},
     smiley::Smiley,
-    {Draw, RectGeometry, UiGlobalState, WidgetState},
+    {Draw, RectGeometry, Settings, UiGlobalState, WidgetState},
 };
 
 mod widgets;
@@ -110,6 +110,15 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         closure.forget();
     }
 
+    let update_settings;
+    {
+        let closure = Closure::wrap(Box::new(enc!((app) move |settings: JsValue| {
+            app.update(Msg::UpdateSettings(settings))
+        })) as Box<dyn FnMut(JsValue)>);
+        update_settings = closure.as_ref().clone();
+        closure.forget();
+    }
+
     vec![
         activate_events,
         add_widget,
@@ -119,6 +128,7 @@ fn create_closures_for_js(app: &App<Msg, Model, Node<Msg>>) -> Box<[JsValue]> {
         toggle_visibility_widget,
         delete_widget,
         swap_widget,
+        update_settings,
     ]
     .into_boxed_slice()
 }
@@ -145,9 +155,9 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
 
     // TODO (later) Serialize (serde) for loading/saving
     model.widgets = vec![
-        // Smiley::new("Smiley Pro", (275.0, 300.0), 150.0),
-        // Smiley::new("Smiley", (475.0, 110.0), 50.0),
-        // Smiley::new("Smiley Mini", (550.0, 165.0), 30.0),
+        Smiley::new("Smiley Pro", (275.0, 300.0), 150.0),
+        Smiley::new("Smiley", (475.0, 110.0), 50.0),
+        Smiley::new("Smiley Mini", (550.0, 165.0), 30.0),
     ];
 
     model
@@ -181,6 +191,7 @@ pub enum Msg {
     ToggleVisibilityWidget(Option<String>),
     DeleteWidget(Option<String>),
     SwapWidget(JsValue),
+    UpdateSettings(JsValue), // Settings
     Draw,
 }
 
@@ -337,10 +348,23 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
         }
         Msg::UpdateWidget(state) => {
             let serialized_state: serde_json::Result<Smiley> = state.as_ref().into_serde();
-            if let Ok(state) = serialized_state {
+            if let Ok(mut state) = serialized_state {
                 let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&state.uuid));
                 if let Some(widget) = selected_widget {
-                    // log! {state.geometry};
+                    if model.app_state.settings.keep_ratio {
+                        let old_geometry = widget.geometry;
+                        let error = 0.01f64; // Use an epsilon for comparison
+                        if (old_geometry.width - state.geometry.width).abs() > error {
+                            // width is different, change height
+                            let diff = state.geometry.width / old_geometry.width;
+                            state.geometry.height = old_geometry.height * diff;
+                        } else if (old_geometry.height - state.geometry.height).abs() > error {
+                            // height is diffenrent, change width
+                            let diff = state.geometry.height / old_geometry.height;
+                            state.geometry.width = old_geometry.width * diff;
+                        }
+                    }
+
                     widget.name = state.name;
                     widget.geometry = state.geometry;
                     // TODO initial_geometry?
@@ -386,6 +410,13 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                 }
             }
         }
+        Msg::UpdateSettings(settings) => {
+            let serialized_settings: serde_json::Result<Settings> = settings.as_ref().into_serde();
+            if let Ok(settings) = serialized_settings {
+                model.app_state.settings = settings;
+                orders.send_msg(Msg::Draw);
+            }
+        }
         Msg::Draw => {
             draw(&model.canvas, &mut model.app_state, &mut model.widgets);
         }
@@ -397,7 +428,7 @@ fn draw(
     mut app_state: &mut UiGlobalState,
     widgets: &mut [Smiley],
 ) {
-    // TODO Is it un-optimized to do that?
+    // TODO It is probably very un-optimized to do that!
     let window = seed::browser::util::window();
     let canvas = canvas.get().expect("get canvas element");
     let context = seed::canvas_context_2d(&canvas);
@@ -514,7 +545,8 @@ fn draw(
         &JsValue::from_serde(&widgets).unwrap(),
     );
 
-    // --- Reset ---
+    // --- Finish & Reset ---
+    ctx.finish().unwrap();
     app_state.pointer_widget_uuid = None;
 }
 

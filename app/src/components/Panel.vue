@@ -5,15 +5,15 @@
       <div class="group">
         <Input v-model:value="x" label="X" unit="px" />
         <Input v-model:value="y" label="Y" unit="px" />
+        <Input :value="0" label="°" unit="px" :disabled="true" />
       </div>
       <div class="group">
         <Input v-model:value="width" label="W" unit="px" :min="1" />
+        <div class="icon" @click="keepRatio = !keepRatio">
+          <i class="fas fa-lock" :class="{ 'icon-active': keepRatio }" v-if="keepRatio" />
+          <i class="fas fa-unlock" v-else />
+        </div>
         <Input v-model:value="height" label="H" unit="px" :min="1" />
-      </div>
-    </div>
-    <div v-if="widget" class="part">
-      <div class="group">
-        <button>Export</button>
       </div>
     </div>
   </div>
@@ -37,6 +37,8 @@ export default {
       y: computedValue("y"),
       width: computedValue("width"),
       height: computedValue("height"),
+      ratio: computed(() => state.x / state.y),
+      keepRatio: computedSettings("keep_ratio"),
     });
 
     function computedValue(prop: string) {
@@ -54,6 +56,18 @@ export default {
       });
     }
 
+    function computedSettings(prop: string) {
+      return computed<any>({
+        get: () => store.state.app.settings[prop] ?? null,
+        set: (value: any) => {
+          store.state.api.update_settings({
+            ...store.state.app.settings,
+            [prop]: value,
+          });
+        },
+      });
+    }
+
     return { ...toRefs(state) };
   },
 };
@@ -61,8 +75,8 @@ export default {
 
 <style scoped>
 .panel {
-  background: white;
-  border-left: 2px solid var(--text-color);
+  background: var(--grey-panel);
+  border-left: 2px solid var(--primary-ink);
   font-size: 12px;
   height: calc(100vh - 48px);
   overflow-y: scroll;
@@ -70,7 +84,7 @@ export default {
   right: 0;
   top: 48px;
   user-select: none;
-  width: 240px;
+  width: 250px;
   z-index: 9;
 }
 
@@ -89,14 +103,31 @@ export default {
   /*gap: 8px;*/
   display: flex;
   margin: 8px 0;
+  align-items: center;
 }
 
-.group > *:not(:last-child) {
-  margin-right: 8px;
+.group .fas {
+  font-size: 10px;
+  position: relative;
+  right: 16px;
+}
+
+.group > *:not(:last-child):not(.icon) {
+  margin-right: 22px;
+}
+
+.icon {
+  position: relative;
+  width: 0;
+  color: var(--secondary-grey);
+}
+
+.icon-active {
+  color: var(--primary-ink);
 }
 
 button {
-  background: var(--text-color);
+  background: var(--primary-ink);
   color: white;
   padding: 5px 10px;
   border-radius: 3px;
@@ -104,7 +135,9 @@ button {
   text-transform: uppercase;
 }
 
+button:focus,
 button:hover {
-  background: var(--purple);
+  outline: 0;
+  background: var(--blue-50);
 }
 </style>

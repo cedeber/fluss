@@ -9,7 +9,6 @@ use piet::{
     kurbo::{Arc, Circle, Point},
     Color, RenderContext,
 };
-use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
 use std::f64;
 use uuid::Uuid;
@@ -89,7 +88,7 @@ impl Draw<WidgetState> for Smiley {
         };
     }
 
-    fn draw(&self, context: &mut WebRenderContext, _ui_state: &UiGlobalState) {
+    fn draw(&self, context: &mut impl RenderContext, _ui_state: &UiGlobalState) {
         let (x, y, radius) = get_widget_geometry(&self.geometry);
 
         let stroke_brush = context.solid_brush(Color::rgb8(0x8b, 0x69, 0x14));

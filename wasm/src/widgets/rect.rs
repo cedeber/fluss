@@ -9,7 +9,6 @@ use piet::{
     kurbo::{Circle, Line, Rect as Rectangle},
     RenderContext, StrokeStyle,
 };
-use piet_web::WebRenderContext;
 use serde::{Deserialize, Serialize};
 
 static RECT_ANCHOR_RADIUS: f64 = 3.0;
@@ -71,7 +70,7 @@ impl Draw<RectGeometry> for Rect {
         unimplemented!();
     }
 
-    fn draw(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState) {
+    fn draw(&self, context: &mut impl RenderContext, ui_state: &UiGlobalState) {
         match self.state {
             RectState::Hover => self.draw_hover(context, ui_state),
             RectState::Select => self.draw_select(context, ui_state),
@@ -86,7 +85,7 @@ impl Rect {
         self.properties = get_properties(&geometry);
     }
 
-    fn draw_hover(&self, context: &mut WebRenderContext, _ui_state: &UiGlobalState) {
+    fn draw_hover(&self, context: &mut impl RenderContext, _ui_state: &UiGlobalState) {
         // let viewport_width = ui_state.canvas_geometry.width;
         // let viewport_height = ui_state.canvas_geometry.width;
 
@@ -153,27 +152,28 @@ impl Rect {
                     if let Some(cursor_previous_position) = &ui_state.cursor.previous_position {
                         let x = cursor_position.x - cursor_previous_position.x;
                         let y = cursor_position.y - cursor_previous_position.y;
+                        let keep_ration = ui_state.settings.keep_ratio;
 
                         match ui_state.cursor.active_anchor {
                             Anchor::TopLeft => {
                                 geometry_state.x = x;
-                                geometry_state.y = y;
+                                geometry_state.y = if keep_ration { x } else { y };
                                 geometry_state.width = -x;
-                                geometry_state.height = -y;
+                                geometry_state.height = if keep_ration { -x } else { -y };
                             }
                             Anchor::TopRight => {
-                                geometry_state.y = y;
+                                geometry_state.y = if keep_ration { -x } else { y };
                                 geometry_state.width = x;
-                                geometry_state.height = -y;
+                                geometry_state.height = if keep_ration { x } else { -y };
                             }
                             Anchor::BottomRight => {
                                 geometry_state.width = x;
-                                geometry_state.height = y;
+                                geometry_state.height = if keep_ration { x } else { y };
                             }
                             Anchor::BottomLeft => {
                                 geometry_state.x = x;
                                 geometry_state.width = -x;
-                                geometry_state.height = y;
+                                geometry_state.height = if keep_ration { -x } else { y };
                             }
                             _ => {}
                         }
@@ -189,7 +189,7 @@ impl Rect {
         geometry_state
     }
 
-    fn draw_select(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState) {
+    fn draw_select(&self, context: &mut impl RenderContext, ui_state: &UiGlobalState) {
         let viewport_width = ui_state.canvas_geometry.width;
         let viewport_height = ui_state.canvas_geometry.width;
         let active_anchor = self.active_anchor;

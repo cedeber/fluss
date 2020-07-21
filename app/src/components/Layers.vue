@@ -221,9 +221,9 @@ export default {
   left: 0;
   width: 240px;
   height: calc(100vh - 48px);
-  background: white;
+  background: var(--grey-panel);
   z-index: 9;
-  border-right: 2px solid var(--text-color);
+  border-right: 2px solid var(--primary-ink);
   display: flex;
   flex-direction: column;
 }
@@ -253,11 +253,11 @@ export default {
 
 /*.layer:hover:not(.selected),*/
 .hovered:not(.selected) {
-  box-shadow: inset 0 0 0 2px var(--blue);
+  box-shadow: inset 0 0 0 2px var(--widget-blue);
 }
 
 .selected {
-  background: var(--pink);
+  background: var(--widget-pink);
   color: white;
 }
 
@@ -283,7 +283,7 @@ export default {
 
 .tool {
   display: none;
-  color: var(--blue-grey);
+  color: var(--secondary-grey);
 }
 
 .selected .tool {
@@ -311,18 +311,26 @@ input {
 }
 
 .search {
-  background: white;
+  background: var(--grey-10);
   display: flex;
   padding: 8px 4px;
   align-items: center;
-  background: var(--purple);
-  border-top: 2px solid white;
-  color: white;
+  color: var(--secondary-grey);
+}
+
+.search.active {
+  background: white;
+  color: var(--primary-ink);
 }
 
 .search input {
   background: transparent;
-  color: white;
+  color: var(--primary-ink);
+}
+
+.search input::placeholder {
+  color: var(--secondary-grey);
+  opacity: 0.5;
 }
 
 .search .clear-search,
@@ -331,20 +339,20 @@ input {
   line-height: 1;
 }
 
-.search.active {
-  background: var(--green);
-}
-
 .layer-tools {
   display: flex;
   padding: 8px 6px;
   justify-content: flex-end;
-  background: var(--yellow);
-  border-bottom: 2px solid white;
 }
 
 .layer-tool {
   line-height: 1;
+}
+
+.layer-tool:focus,
+.layer-tool:hover {
+  outline: 0;
+  color: var(--blue-50);
 }
 
 .layer-tool:not(:last-child) {
@@ -352,9 +360,10 @@ input {
 }
 
 .not-found {
-  font-weight: bold;
+  text-align: center;
+  padding: 10px;
   word-break: break-word;
   font-size: 12px;
-  color: var(--red);
+  color: var(--orange-70);
 }
 </style>

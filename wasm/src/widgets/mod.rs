@@ -1,6 +1,6 @@
 use crate::widgets::smiley::Smiley;
 use cursor::Cursor;
-use piet_web::WebRenderContext;
+use piet::RenderContext;
 use serde::{Deserialize, Serialize};
 use std::f64;
 
@@ -9,11 +9,12 @@ pub mod rect;
 pub mod smiley;
 pub mod utils;
 
-// --- Trait ---
+// --- Traits ---
 pub trait Draw<T> {
     fn update(&mut self, ui_state: &mut UiGlobalState) -> T;
     fn change(&mut self, changes: &RectGeometry);
-    fn draw(&self, context: &mut WebRenderContext, ui_state: &UiGlobalState);
+    fn draw(&self, context: &mut impl RenderContext, ui_state: &UiGlobalState);
+}
 }
 
 // --- Geometry ---
@@ -34,6 +35,12 @@ pub struct WidgetState {
     pub geometry: RectGeometry,
 }
 
+// --- Settings ---
+#[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
+pub struct Settings {
+    pub keep_ratio: bool,
+}
+
 // --- UI State ---
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct UiGlobalState {
@@ -41,6 +48,7 @@ pub struct UiGlobalState {
     pub canvas_geometry: RectGeometry,
     pub active_widget_uuid: Option<String>,
     pub pointer_widget_uuid: Option<String>, // from mouse, during draw loop
+    pub settings: Settings,
 }
 
 // --- Other ---
