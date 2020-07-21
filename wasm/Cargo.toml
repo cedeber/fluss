@@ -16,13 +16,14 @@ opt-level = 's'
 default = ["console_error_panic_hook", "wee_alloc"]
 
 [dependencies]
-wasm-bindgen = { version = "0.2.64", features = ["serde-serialize"] }
+wasm-bindgen = { version = "0.2.65", features = ["serde-serialize"] }
 console_error_panic_hook = { version = "0.1.6", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
 nalgebra = { version = "0.21.1", features = ["serde-serialize"] }
 ncollide2d = "0.23.2"
 piet = "0.1.0"
 piet-web = "0.1.0"
+piet-svg = "0.1.0"
 seed = "0.7.0"
 uuid = { version = "0.8.1", features = ["wasm-bindgen", "v4"] }
 enclose = "1.1.8"
