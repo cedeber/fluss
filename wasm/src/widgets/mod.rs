@@ -15,7 +15,6 @@ pub trait Draw<T> {
     fn change(&mut self, changes: &RectGeometry);
     fn draw(&self, context: &mut impl RenderContext, ui_state: &UiGlobalState);
 }
-}
 
 // --- Geometry ---
 #[derive(Debug, Default, Copy, Clone, Serialize, Deserialize)]
