@@ -12,16 +12,16 @@
     "fuse.js": "^6.4.0",
     "ramda": "^0.27.0",
     "tippy.js": "^6.2.5",
-    "vue": "^3.0.0-beta.24",
-    "vue-router": "^4.0.0-beta.2",
+    "vue": "^3.0.0-rc.2",
+    "vue-router": "^4.0.0-beta.3",
     "vuex": "^4.0.0-beta.4"
   },
   "devDependencies": {
     "@types/ramda": "^0.27.11",
-    "@vue/compiler-sfc": "^3.0.0-beta.24",
+    "@vue/compiler-sfc": "^3.0.0-rc.2",
     "tslib": "^2.0.0",
-    "typescript": "^4.0.0-dev.20200715",
-    "vite": "^1.0.0-beta.11"
+    "typescript": "^3.9.7",
+    "vite": "^1.0.0-rc.2"
   },
   "prettier": {
     "printWidth": 100,
