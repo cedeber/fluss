@@ -8,12 +8,12 @@
         <Input :value="0" label="°" unit="px" :disabled="true" />
       </div>
       <div class="group">
-        <Input v-model:value="width" label="W" unit="px" :min="1" />
+        <Input v-model:value="width" label="W" unit="px" :min="1" :locked="keepRatio && 'right'" />
         <div class="icon" @click="keepRatio = !keepRatio">
           <i class="fad fa-lock-alt" :class="{ 'icon-active': keepRatio }" v-if="keepRatio" />
           <i class="fad fa-unlock-alt" v-else />
         </div>
-        <Input v-model:value="height" label="H" unit="px" :min="1" />
+        <Input v-model:value="height" label="H" unit="px" :min="1" :locked="keepRatio && 'left'" />
       </div>
     </div>
   </div>
@@ -126,7 +126,7 @@ export default {
 }
 
 .icon-active {
-  color: var(--green-70);
+  color: var(--magenta-70);
 }
 
 button {

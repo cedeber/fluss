@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :class="{ focus: isFocus, disabled }">
+  <div class="container" :class="{ focus: isFocus, disabled, locked }" :class="locked">
     <div class="label">{{ label }}</div>
     <input
       ref="input"
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, watchEffect, toRefs, ref } from "vue";
+import { reactive, watchEffect, toRefs, ref, computed } from "vue";
 import { useStore } from "vuex";
 import { State } from "../store";
 
@@ -27,6 +27,7 @@ interface InputProps {
   min?: number;
   max?: number;
   disabled: boolean;
+  locked?: "right" | "left";
 }
 
 export default {
@@ -38,6 +39,7 @@ export default {
     min: { type: Number, required: false },
     max: { type: Number, required: false },
     disabled: Boolean,
+    locked: { type: String, required: false },
   },
   setup(props: InputProps, { emit }) {
     const input = ref<HTMLInputElement>();
@@ -45,6 +47,7 @@ export default {
     const state = reactive({
       value: props.value,
       isFocus: false,
+      locked: computed(() => props.locked),
     });
 
     watchEffect(() => {
@@ -97,6 +100,14 @@ export default {
 
 .container.disabled {
   opacity: 0.5;
+}
+
+.container.locked.right {
+  box-shadow: 0 0 0 2px white, 3px 0 0 1px var(--magenta-50);
+}
+
+.container.locked.left {
+  box-shadow: 0 0 0 2px white, -3px 0 0 1px var(--magenta-50);
 }
 
 .input {
