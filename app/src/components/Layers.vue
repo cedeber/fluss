@@ -242,13 +242,8 @@ export default {
   user-select: none;
   display: flex;
   flex-direction: column;
-  /*gap: 1px;*/
-  padding: 10px 3px;
-  flex: 1;
-}
-
-.layer:not(:last-child) {
-  margin-bottom: 1px;
+  margin: 0 3px;
+  flex: 1 1;
 }
 
 .layer {
@@ -258,6 +253,7 @@ export default {
   cursor: default;
   justify-content: space-between;
   align-items: center;
+  flex: 1 0;
 }
 
 /*.layer:hover:not(.selected),*/
@@ -323,6 +319,7 @@ input {
   padding: 8px 4px;
   align-items: center;
   color: var(--secondary-grey);
+  flex: 1 0;
 }
 
 .search.active {
@@ -349,6 +346,7 @@ input {
   display: flex;
   padding: 8px 6px;
   justify-content: flex-end;
+  flex: 1 0;
 }
 
 .layer-tool {
