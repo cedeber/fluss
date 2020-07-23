@@ -10,8 +10,8 @@
       <div class="group">
         <Input v-model:value="width" label="W" unit="px" :min="1" />
         <div class="icon" @click="keepRatio = !keepRatio">
-          <i class="fas fa-lock" :class="{ 'icon-active': keepRatio }" v-if="keepRatio" />
-          <i class="fas fa-unlock" v-else />
+          <i class="fad fa-lock-alt" :class="{ 'icon-active': keepRatio }" v-if="keepRatio" />
+          <i class="fad fa-unlock-alt" v-else />
         </div>
         <Input v-model:value="height" label="H" unit="px" :min="1" />
       </div>
@@ -113,12 +113,6 @@ export default {
   align-items: center;
 }
 
-.group .fas {
-  font-size: 10px;
-  position: relative;
-  right: 16px;
-}
-
 .group > *:not(:last-child):not(.icon) {
   margin-right: 22px;
 }
@@ -127,10 +121,12 @@ export default {
   position: relative;
   width: 0;
   color: var(--secondary-grey);
+  right: 16.5px;
+  font-size: 12px;
 }
 
 .icon-active {
-  color: var(--primary-ink);
+  color: var(--green-70);
 }
 
 button {

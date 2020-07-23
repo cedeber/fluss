@@ -2,16 +2,16 @@
   <div class="left-panel" v-if="showUi">
     <div class="layer-tools">
       <div class="layer-tool" @click="onLayerMove(-2)">
-        <i class="fas fa-arrow-up fa-sm" />
+        <i class="fad fa-bring-front fa-sm" />
       </div>
       <div class="layer-tool" @click="onLayerMove(-1)">
-        <i class="fas fa-caret-square-up fa-sm" />
+        <i class="fad fa-bring-forward fa-sm" />
       </div>
       <div class="layer-tool" @click="onLayerMove(1)">
-        <i class="fas fa-caret-square-down fa-sm" />
+        <i class="fad fa-send-backward fa-sm" />
       </div>
       <div class="layer-tool" @click="onLayerMove(2)">
-        <i class="fas fa-arrow-down fa-sm" />
+        <i class="fad fa-send-back fa-sm" />
       </div>
     </div>
     <div class="layers" @click="onDeselect" @mouseover="onHover(null)">
@@ -32,7 +32,7 @@
         @mouseover.stop="onHover(widget.uuid)"
       >
         <div class="layer--name">
-          <i class="fas fa-vector-square fa-xs" />
+          <i class="layer-icon fad fa-vector-square fa-xs" />
           <div v-if="editMode === widget.uuid" class="edit">
             <input
               :value="widget.name"
@@ -47,12 +47,12 @@
           </div>
         </div>
         <div class="tool" @click.stop="onHide(widget.uuid)">
-          <i class="fas fa-eye-slash fa-xs" />
+          <i class="fad fa-eye-slash fa-xs" />
         </div>
       </div>
     </div>
     <div class="search" :class="{ active: searchFor }">
-      <i class="fas fa-search fa-sm" />
+      <i class="fad fa-search fa-sm" />
       <input
         type="text"
         @blur="onExit"
@@ -62,7 +62,7 @@
         placeholder="Search Layers"
       />
       <div class="clear-search" @click="onClearSearch" v-if="searchFor">
-        <i class="fas fa-times-circle fa-sm" />
+        <i class="fad fa-times-circle fa-sm" />
       </div>
     </div>
   </div>
@@ -277,7 +277,7 @@ export default {
   overflow: hidden;
 }
 
-.layer--name .fas {
+.layer-icon {
   margin-right: 4px;
 }
 
@@ -292,7 +292,6 @@ export default {
 
 .tool {
   display: none;
-  color: var(--secondary-grey);
 }
 
 .selected .tool {

@@ -4,27 +4,27 @@
       <div class="toolbar">
         <div class="title">Eukolia <span class="tag">beta</span></div>
         <button class="button" @click="addWidget('smiley')">
-          <i class="fas fa-plus fa-md" />
+          <i class="fad fa-smile-plus fa-lg" />
         </button>
       </div>
     </div>
     <div class="group">
       <div class="toolbar" v-if="showUi">
         <a class="button" href="https://docs.eukolia.design" target="_blank">
-          <i class="fas fa-book fa-lg" />
+          <i class="fad fa-book fa-lg" />
         </a>
         <a
           class="button"
           :href="'https://twitter.com/intent/tweet\\?text=Hi%20@EukoliaDesign,'"
           target="_blank"
         >
-          <i class="far fa-comment-alt fa-lg" />
+          <i class="fad fa-comment-alt-smile fa-lg" />
         </a>
       </div>
       <div class="toolbar" :class="{ hide: !showUi }">
         <button class="button" @click="toggleUi">
-          <i class="fas fa-border-none fa-lg" v-if="showUi" />
-          <i class="fas fa-border-all fa-lg" v-else />
+          <i class="fad fa-window-frame-open fa-lg" v-if="showUi" />
+          <i class="fad fa-window-frame fa-lg" v-else />
         </button>
       </div>
     </div>
