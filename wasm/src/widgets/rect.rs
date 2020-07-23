@@ -140,11 +140,11 @@ impl Rect {
             };
         }
 
-        let cursor_is_active = self.active_anchor != Anchor::None;
+        let anchor_is_active = self.active_anchor != Anchor::None;
 
         if ui_state.cursor.down_start_position.is_some() {
-            if ui_state.cursor.is_active || cursor_is_active {
-                if self.active_anchor != Anchor::None {
+            if ui_state.cursor.is_active || anchor_is_active {
+                if anchor_is_active && ui_state.cursor.active_anchor == Anchor::None {
                     ui_state.cursor.active_anchor = self.active_anchor;
                 }
 
@@ -182,8 +182,10 @@ impl Rect {
                 ui_state.cursor.is_active = true;
             }
         } else {
+            // reset - pointer out
             ui_state.cursor.active_anchor = Anchor::None;
-            ui_state.cursor.is_active = cursor_is_active;
+            // keep active in case it is over an anchor but not pointerdown
+            ui_state.cursor.is_active = anchor_is_active;
         }
 
         geometry_state
@@ -192,7 +194,12 @@ impl Rect {
     fn draw_select(&self, context: &mut impl RenderContext, ui_state: &UiGlobalState) {
         let viewport_width = ui_state.canvas_geometry.width;
         let viewport_height = ui_state.canvas_geometry.width;
-        let active_anchor = self.active_anchor;
+        // ui_state active anchor has priority
+        let active_anchor = if ui_state.cursor.active_anchor != Anchor::None {
+            ui_state.cursor.active_anchor
+        } else {
+            self.active_anchor
+        };
 
         // -> Rectangle
         let brush = context.solid_brush(PINK);
