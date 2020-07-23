@@ -90,7 +90,7 @@ export default {
   border: 0;
   border-radius: 5px;
   box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
-  background: rgba(255, 255, 255, 0.8);
+  background: white;
   -webkit-backdrop-filter: blur(40px);
   backdrop-filter: blur(40px);
 }

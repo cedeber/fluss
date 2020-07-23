@@ -92,6 +92,7 @@ export default {
   border-radius: 4px;
   border: 2px solid var(--primary-ink);
   display: flex;
+  background: var(--grey-10);
 }
 
 .container.focus {
