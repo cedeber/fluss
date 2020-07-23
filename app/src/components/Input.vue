@@ -86,7 +86,6 @@ export default {
 <style scoped>
 .container {
   align-items: baseline;
-  background: white;
   border-radius: 4px;
   border: 2px solid var(--primary-ink);
   display: flex;

@@ -1,5 +1,5 @@
 <template>
-  <div class="left-panel">
+  <div class="left-panel" v-if="showUi">
     <div class="layer-tools">
       <div class="layer-tool" @click="onLayerMove(-2)">
         <i class="fas fa-arrow-up fa-sm" />
@@ -80,6 +80,7 @@ interface InnerState {
   active_widget_uuid: ComputedRef<string | undefined | null>;
   pointer_widget_uuid: ComputedRef<string | undefined | null>;
   widgets: ComputedRef<Widget[]>;
+  showUi: ComputedRef<boolean>;
 }
 
 export default {
@@ -101,6 +102,7 @@ export default {
             .includes(widget.uuid);
         });
       }),
+      showUi: computed(() => !store.state.localSettings.hideUserInterface),
     });
 
     function onClick(uuid: string) {
@@ -217,15 +219,22 @@ export default {
 <style scoped>
 .left-panel {
   position: absolute;
-  top: 48px;
-  left: 0;
+  top: 68px;
+  left: 10px;
   width: 240px;
-  height: calc(100vh - 48px);
+  max-height: calc(100vh - 78px);
   background: var(--grey-panel);
   z-index: 9;
-  border-right: 2px solid var(--primary-ink);
+  border: 2px solid var(--primary-ink);
+  border-radius: 5px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  border: 0;
+  box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
 }
 
 .layers {
@@ -234,7 +243,7 @@ export default {
   display: flex;
   flex-direction: column;
   /*gap: 1px;*/
-  padding: 3px;
+  padding: 10px 3px;
   flex: 1;
 }
 
@@ -311,7 +320,6 @@ input {
 }
 
 .search {
-  background: var(--grey-10);
   display: flex;
   padding: 8px 4px;
   align-items: center;
@@ -319,13 +327,12 @@ input {
 }
 
 .search.active {
-  background: white;
-  color: var(--primary-ink);
+  color: var(--teal-70);
 }
 
 .search input {
   background: transparent;
-  color: var(--primary-ink);
+  color: var(--teal-70);
 }
 
 .search input::placeholder {
@@ -364,6 +371,6 @@ input {
   padding: 10px;
   word-break: break-word;
   font-size: 12px;
-  color: var(--orange-70);
+  color: var(--teal-70);
 }
 </style>

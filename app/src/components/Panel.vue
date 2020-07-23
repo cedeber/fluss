@@ -1,5 +1,5 @@
 <template>
-  <div class="panel">
+  <div class="panel" v-if="showUi">
     <div v-if="widget" class="part">
       <div class="title">Geometry</div>
       <div class="group">
@@ -39,6 +39,7 @@ export default {
       height: computedValue("height"),
       ratio: computed(() => state.x / state.y),
       keepRatio: computedSettings("keep_ratio"),
+      showUi: computed(() => !store.state.localSettings.hideUserInterface),
     });
 
     function computedValue(prop: string) {
@@ -78,14 +79,20 @@ export default {
   background: var(--grey-panel);
   border-left: 2px solid var(--primary-ink);
   font-size: 12px;
-  height: calc(100vh - 48px);
+  max-height: calc(100vh - 20px);
   overflow-y: scroll;
   position: absolute;
-  right: 0;
-  top: 48px;
+  right: 10px;
+  top: 68px;
   user-select: none;
   width: 250px;
   z-index: 9;
+  border: 0;
+  border-radius: 5px;
+  box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
 }
 
 .part {

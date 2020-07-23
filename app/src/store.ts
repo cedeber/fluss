@@ -31,12 +31,18 @@ export interface State {
     // widgets: Vec<Smiley>
     widgets: Widget[];
   } | null;
+  localSettings: {
+    hideUserInterface: boolean;
+  };
 }
 
 // --- State ---
 const state: State = {
   api: {}, // from wasm
   app: null,
+  localSettings: {
+    hideUserInterface: false,
+  },
 };
 
 // --- Getters ---
@@ -49,7 +55,7 @@ const getters = {
 // --- Mutations: MUTATE ---
 export const MUTATE_API = "MUTATE_API";
 export const MUTATE_APP_STATE = "MUTATE_APP_STATE";
-const MUTATE_SETTINGS = "MUTATE_SETTINGS";
+const MUTATE_UI = "MUTATE_UI";
 
 const mutations = {
   [MUTATE_API](state: State, payload: State["api"]) {
@@ -61,20 +67,19 @@ const mutations = {
     app_state["widgets"] = payload.widgets;
     state.app = app_state;
   },
-  [MUTATE_SETTINGS](state: State, payload: Settings) {
-    if (state.app) {
-      state.app.settings = payload;
-    }
+  [MUTATE_UI](state: State, payload: boolean) {
+    state.localSettings.hideUserInterface = payload;
   },
 };
 
-// --- Actions: UPDATE ---
-//export const UPDATE_WIDGET = "UPDATE_WIDGET";
+// --- Actions: UPDATE/SHOW/HIDE/TOGGLE ---
+export const TOGGLE_UI = "TOGGLE_UI";
+export const HIDE_UI = "HIDE_UI";
 
 const actions = {
-  //[UPDATE_WIDGET]({ commit }, payload) {
-  //  commit(MUTATION_UPDATE_WIDGET, payload);
-  //},
+  [TOGGLE_UI]({ commit, state }) {
+    commit(MUTATE_UI, !state.localSettings.hideUserInterface);
+  },
 };
 
 export const store = createStore({ state, getters, mutations, actions });
