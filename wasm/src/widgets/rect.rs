@@ -6,7 +6,7 @@ use crate::{
 use nalgebra::geometry::Point2;
 use ncollide2d::bounding_volume::{BoundingSphere, BoundingVolume};
 use piet::{
-    kurbo::{Circle, Line, Rect as Rectangle},
+    kurbo::{BezPath, Circle, Line, Rect as Rectangle},
     RenderContext, StrokeStyle,
 };
 use serde::{Deserialize, Serialize};
@@ -218,6 +218,25 @@ impl Rect {
         let fill_brush = context.solid_brush(WHITE);
         let fill_brush_active = context.solid_brush(PINK);
 
+        if ui_state.settings.keep_ratio {
+            let mut path = BezPath::new();
+            path.move_to((
+                self.properties.border_left + 3.,
+                self.properties.border_top - 7.,
+            ));
+            path.quad_to(
+                (
+                    self.properties.border_left - 8.5,
+                    self.properties.border_top - 8.5,
+                ),
+                (
+                    self.properties.border_left - 7.,
+                    self.properties.border_top + 3.,
+                ),
+            );
+            context.stroke(path, &fill_brush_active, 2.0);
+        }
+
         context.fill(
             Circle::new(
                 (self.properties.border_left, self.properties.border_top),
@@ -237,6 +256,25 @@ impl Rect {
             &brush,
             2.,
         );
+
+        if ui_state.settings.keep_ratio {
+            let mut path = BezPath::new();
+            path.move_to((
+                self.properties.border_right - 3.,
+                self.properties.border_top - 7.,
+            ));
+            path.quad_to(
+                (
+                    self.properties.border_right + 8.5,
+                    self.properties.border_top - 8.5,
+                ),
+                (
+                    self.properties.border_right + 7.,
+                    self.properties.border_top + 3.,
+                ),
+            );
+            context.stroke(path, &fill_brush_active, 2.0);
+        }
 
         context.fill(
             Circle::new(
@@ -258,6 +296,25 @@ impl Rect {
             2.,
         );
 
+        if ui_state.settings.keep_ratio {
+            let mut path = BezPath::new();
+            path.move_to((
+                self.properties.border_right - 3.,
+                self.properties.border_bottom + 7.,
+            ));
+            path.quad_to(
+                (
+                    self.properties.border_right + 8.5,
+                    self.properties.border_bottom + 8.5,
+                ),
+                (
+                    self.properties.border_right + 7.,
+                    self.properties.border_bottom - 3.,
+                ),
+            );
+            context.stroke(path, &fill_brush_active, 2.0);
+        }
+
         context.fill(
             Circle::new(
                 (self.properties.border_right, self.properties.border_bottom),
@@ -277,6 +334,25 @@ impl Rect {
             &brush,
             2.,
         );
+
+        if ui_state.settings.keep_ratio {
+            let mut path = BezPath::new();
+            path.move_to((
+                self.properties.border_left + 3.,
+                self.properties.border_bottom + 7.,
+            ));
+            path.quad_to(
+                (
+                    self.properties.border_left - 8.5,
+                    self.properties.border_bottom + 8.5,
+                ),
+                (
+                    self.properties.border_left - 7.,
+                    self.properties.border_bottom - 3.,
+                ),
+            );
+            context.stroke(path, &fill_brush_active, 2.0);
+        }
 
         context.fill(
             Circle::new(
