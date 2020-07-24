@@ -77,7 +77,6 @@ export default {
   /*box-shadow: inset 0 -1px 0 0 #bdbdbd, inset 0 1px 0 0 #f5f5f5;*/
   align-items: center;
   background: var(--grey-panel);
-  border-bottom: 2px solid var(--primary-ink);
   display: flex;
   height: 48px;
   padding: 0 12px;
@@ -85,8 +84,8 @@ export default {
   z-index: 9;
   border: 0;
   background: rgba(255, 255, 255, 0.8);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border-radius: 5px;
   box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
 }

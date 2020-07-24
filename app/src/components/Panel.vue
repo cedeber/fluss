@@ -77,7 +77,6 @@ export default {
 <style scoped>
 .panel {
   background: var(--grey-panel);
-  border-left: 2px solid var(--primary-ink);
   font-size: 12px;
   max-height: calc(100vh - 20px);
   overflow-y: scroll;
@@ -85,7 +84,7 @@ export default {
   right: 10px;
   top: 68px;
   user-select: none;
-  width: 250px;
+  width: 248px;
   z-index: 9;
   border: 0;
   border-radius: 5px;

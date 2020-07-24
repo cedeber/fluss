@@ -2,16 +2,16 @@
   <div class="left-panel" v-if="showUi">
     <div class="layer-tools">
       <div class="layer-tool" @click="onLayerMove(-2)">
-        <i class="fad fa-bring-front fa-sm" />
+        <i class="fad fa-bring-front fa-md" />
       </div>
       <div class="layer-tool" @click="onLayerMove(-1)">
-        <i class="fad fa-bring-forward fa-sm" />
+        <i class="fad fa-bring-forward fa-md" />
       </div>
       <div class="layer-tool" @click="onLayerMove(1)">
-        <i class="fad fa-send-backward fa-sm" />
+        <i class="fad fa-send-backward fa-md" />
       </div>
       <div class="layer-tool" @click="onLayerMove(2)">
-        <i class="fad fa-send-back fa-sm" />
+        <i class="fad fa-send-back fa-md" />
       </div>
     </div>
     <div class="layers" @click="onDeselect" @mouseover="onHover(null)">
@@ -32,7 +32,7 @@
         @mouseover.stop="onHover(widget.uuid)"
       >
         <div class="layer--name">
-          <i class="layer-icon fad fa-vector-square fa-xs" />
+          <i class="layer-icon fad fa-vector-square fa-sm" />
           <div v-if="editMode === widget.uuid" class="edit">
             <input
               :value="widget.name"
@@ -47,12 +47,12 @@
           </div>
         </div>
         <div class="tool" @click.stop="onHide(widget.uuid)">
-          <i class="fad fa-eye-slash fa-xs" />
+          <i class="fad fa-eye-slash fa-sm" />
         </div>
       </div>
     </div>
     <div class="search" :class="{ active: searchFor }">
-      <i class="fad fa-search fa-sm" />
+      <i class="fad fa-search fa-md" />
       <input
         type="text"
         @blur="onExit"
@@ -168,6 +168,7 @@ export default {
     function onLayerMove(direction: number) {
       const len = state.widgets.length;
       let goTo = false;
+      // FIXME: Avoid loop
       for (let i = 0; i < len; i += 1) {
         const widget = state.widgets[i];
         if (widget.uuid === store.state.app?.active_widget_uuid) {
@@ -222,10 +223,8 @@ export default {
   top: 68px;
   left: 10px;
   width: 240px;
-  max-height: calc(100vh - 78px);
   background: var(--grey-panel);
   z-index: 9;
-  border: 2px solid var(--primary-ink);
   border-radius: 5px;
   display: flex;
   flex-direction: column;
@@ -233,8 +232,8 @@ export default {
   border: 0;
   box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
   background: rgba(255, 255, 255, 0.8);
-  -webkit-backdrop-filter: blur(40px);
-  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .layers {
@@ -274,7 +273,7 @@ export default {
 }
 
 .layer-icon {
-  margin-right: 4px;
+  margin-right: 10px;
 }
 
 .name {
@@ -283,7 +282,7 @@ export default {
   text-overflow: ellipsis;
   overflow: hidden;
   flex: 1;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .tool {
@@ -306,10 +305,10 @@ input {
 }
 
 input {
-  font-size: 12px;
+  font-size: 13px;
   background: white;
   border-radius: 2px;
-  padding: 2px 4px;
+  padding: 1.5px 4px;
   outline: 0;
   line-height: 1;
 }
