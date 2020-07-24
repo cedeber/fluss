@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :class="{ focus: isFocus, disabled, locked }" :class="locked">
+  <div class="container" :class="[{ focus: isFocus, disabled, locked }, locked]">
     <div class="label">{{ label }}</div>
     <input
       ref="input"
