@@ -228,6 +228,9 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             orders.send_msg(Msg::Draw);
         }
         Msg::MouseDown(event) => {
+            // Needed to avoid the canvas to take the focus control
+            // Focus is given to the Layer DOM Element from "app"
+            event.prevent_default();
             model.app_state.cursor.down_start_position = Some(Point2::new(
                 event.client_x().into(),
                 event.client_y().into(),
@@ -295,6 +298,9 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                         }
                         "Backspace" => {
                             orders.send_msg(Msg::DeleteWidget(Some(widget.uuid.clone())));
+                        }
+                        "KeyH" => {
+                            orders.send_msg(Msg::ToggleVisibilityWidget(Some(widget.uuid.clone())));
                         }
                         _ => {}
                     }
@@ -400,14 +406,14 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             let serialized_state: serde_json::Result<Test> = state.as_ref().into_serde();
             if let Ok(state) = serialized_state {
                 // TODO check binary_search_by_key(&13, |&(a,b)| b)
-                let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&state.uuid));
-                if selected_widget.is_some() {
-                    let len = model.widgets.len();
-                    if state.a < len && state.b < len {
-                        model.widgets.swap(state.a, state.b);
-                        orders.send_msg(Msg::Draw);
-                    }
+                //let selected_widget = model.widgets.iter_mut().find(|w| w.uuid.eq(&state.uuid));
+                //if selected_widget.is_some() {
+                let len = model.widgets.len();
+                if state.a < len && state.b < len {
+                    model.widgets.swap(state.a, state.b);
+                    orders.send_msg(Msg::Draw);
                 }
+                //}
             }
         }
         Msg::UpdateSettings(settings) => {
@@ -540,6 +546,7 @@ fn draw(
     cursor.draw(&mut ctx, &app_state);
 
     // --- Update Web UI / JavaScript ---
+    // TODO Should send only on change, currently send all the time
     update_app_state(
         &JsValue::from_serde(&app_state).unwrap(),
         &JsValue::from_serde(&widgets).unwrap(),

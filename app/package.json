@@ -3,32 +3,39 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "@pika/react": "^16.13.1",
     "@pika/react-dom": "^16.13.1",
+    "@react-aria/button": "^3.1.0",
+    "@react-aria/focus": "^3.1.0",
+    "@react-aria/interactions": "^3.1.0",
+    "@react-aria/switch": "^3.1.0",
+    "@react-aria/visually-hidden": "^3.1.0",
+    "@react-stately/toggle": "^3.1.0",
     "@tippyjs/react": "^4.1.0",
+    "clsx": "^1.1.1",
     "fuse.js": "^6.4.1",
-    "ramda": "^0.27.0",
+    "ramda": "^0.27.1",
     "react": "npm:@pika/react@^16.13.1",
     "react-dom": "npm:@pika/react-dom@^16.13.1"
   },
   "devDependencies": {
-    "@types/ramda": "^0.27.11",
-    "@types/react": "^16.9.43",
+    "@types/ramda": "^0.27.14",
+    "@types/react": "^16.9.44",
     "@types/react-dom": "^16.9.8",
-    "@typescript-eslint/eslint-plugin": "^3.7.0",
-    "@typescript-eslint/parser": "^3.7.0",
-    "eslint": "^7.5.0",
+    "@typescript-eslint/eslint-plugin": "^3.8.0",
+    "@typescript-eslint/parser": "^3.8.0",
+    "eslint": "^7.6.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-react": "^7.20.4",
+    "eslint-plugin-react": "^7.20.5",
     "eslint-plugin-react-hooks": "^4.0.8",
     "prettier": "^2.0.5",
     "sass": "^1.26.10",
     "typescript": "^3.9.7",
-    "vite": "^1.0.0-rc.3",
+    "vite": "^1.0.0-rc.4",
     "vite-plugin-react": "^3.0.2"
   },
   "prettier": {

@@ -22,7 +22,7 @@
   },
   "plugins": ["@typescript-eslint", "react", "react-hooks", "jsx-a11y"],
   "rules": {
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": ["error", { "varsIgnorePattern": "^_" }],
     "@typescript-eslint/ban-types": "off",
     "react/prop-types": "off" // Replaced by TypeScript
   },

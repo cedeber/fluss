@@ -1,0 +1,19 @@
+.button {
+  border-radius: 4px;
+  display: flex;
+  padding: 4px 6px;
+  transition: 300ms;
+  outline: 0;
+
+  &:not(:last-child) {
+    margin-right: 5px;
+  }
+}
+
+.focus {
+  color: var(--magenta-50);
+}
+
+.hover {
+  color: var(--blue-50);
+}
