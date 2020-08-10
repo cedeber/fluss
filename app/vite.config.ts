@@ -4,7 +4,7 @@ import type { UserConfig } from "vite";
 const config: UserConfig = {
   jsx: "react",
   plugins: [reactPlugin],
-  outDir: "../build/",
+  outDir: "../public/",
 };
 
 export default config;
