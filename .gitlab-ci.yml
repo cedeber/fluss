@@ -20,21 +20,15 @@ stages:
 test:cargo:
   stage: test
   image: "rust:latest"
-  script:
-    - rustc --version && cargo --version  # Print version info for debugging
-    - cd wasm/
-    - cargo test --workspace --verbose
-
-clippy:cargo:
-  stage: test
-  image: "rust:latest"
   before_script:
     - rustup component add clippy
   script:
     - rustc --version && cargo --version  # Print version info for debugging
     - cd wasm/
     - cargo clippy --workspace --verbose
+    # - cargo test --workspace --verbose
 
+# Build and deploy pages
 pages:
   image: "node:latest"
   stage: deploy
