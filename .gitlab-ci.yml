@@ -27,5 +27,6 @@ test:cargo:
 clippy:cargo:
   script:
     - rustc --version && cargo --version  # Print version info for debugging
+    - rustup component add clippy
     - cd wasm/
     - cargo clippy --workspace --verbose
