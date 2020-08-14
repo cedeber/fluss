@@ -8,4 +8,5 @@ dist
 node_modules
 .vscode
 .idea
+*.iml
 .DS_Store
