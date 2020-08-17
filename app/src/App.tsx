@@ -6,12 +6,13 @@ import { ApiProvider, useApi } from "./context/wasm-api";
 // @ts-ignore
 import init, { start } from "../public/pkg/fluss_app.js";
 
-import styles from "./App.module.scss";
+import style from "./App.module.scss";
 import Toolbar from "./panels/Toolbar";
 import Layers from "./panels/Layers";
 import { useApp, AppProvider } from "./context/app-state";
 import { WidgetsProvider, useWidgets } from "./context/widgets";
 import { UiGlobalState, Widget } from "./types";
+import Details from "./panels/Details";
 
 function App(): React.ReactElement {
   return (
@@ -25,7 +26,7 @@ function App(): React.ReactElement {
           </AppProvider>
         </SettingsProvider>
       </ApiProvider>
-      <div id="wasm" className={styles.wasm} />
+      <div id="wasm" className={style.wasm} />
     </>
   );
 }
@@ -77,6 +78,7 @@ function Main() {
     <>
       <Toolbar />
       <Layers />
+      <Details />
     </>
   );
 }
