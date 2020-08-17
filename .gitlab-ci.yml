@@ -1,0 +1,44 @@
+stages:
+  - test
+  - deploy
+
+# Optional: Pick zero or more services to be used on all builds.
+# Only needed when using a docker container to run your tests in.
+# Check out: http://docs.gitlab.com/ce/ci/docker/using_docker_images.html#what-is-a-service
+# services:
+#   - mysql:latest
+#   - redis:latest
+#   - postgres:latest
+
+# Optional: Install a C compiler, cmake and git into the container.
+# You will often need this when you (or any of your dependencies) depends on C code.
+# before_script:
+#   - apt-get update -yqq
+#   - apt-get install -yqq --no-install-recommends build-essential
+
+# Use cargo to test the project
+test:cargo:
+  stage: test
+  image: "rust:latest"
+  before_script:
+    - rustup component add clippy
+  script:
+    - rustc --version && cargo --version  # Print version info for debugging
+    - cd wasm/
+    - cargo clippy --workspace --verbose
+    # - cargo test --workspace --verbose
+
+# Build and deploy pages
+pages:
+  image: "node:latest"
+  stage: deploy
+  script:
+    - node --version && npm --version  # Print version info for debugging
+    - cd app/
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
