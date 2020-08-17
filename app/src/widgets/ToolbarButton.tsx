@@ -18,7 +18,10 @@ export default function ToolbarButton(props: AriaButtonProps): React.ReactElemen
       {...focusProps}
       {...hoverProps}
       ref={ref}
-      className={cx(style.button, { [style.focus]: isFocusVisible, [style.hover]: isHovered })}
+      className={cx(style.button, {
+        [style.buttonFocus]: isFocusVisible,
+        [style.buttonHover]: isHovered,
+      })}
     >
       {props.children}
     </button>

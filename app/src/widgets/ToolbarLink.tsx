@@ -13,7 +13,10 @@ export default function ToolbarButton(props: AnchorHTMLAttributes<Element>): Rea
       {...props}
       {...focusProps}
       {...hoverProps}
-      className={cx(style.button, { [style.focus]: isFocusVisible, [style.hover]: isHovered })}
+      className={cx(style.button, {
+        [style.buttonFocus]: isFocusVisible,
+        [style.buttonHover]: isHovered,
+      })}
       role="button"
     >
       {props.children}
