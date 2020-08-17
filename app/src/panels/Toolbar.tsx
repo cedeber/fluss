@@ -6,7 +6,7 @@ import style from "./Toolbar.module.scss";
 import ToolbarButton from "../widgets/ToolbarButton";
 import ToolbarLink from "../widgets/ToolbarLink";
 
-export default function Toolbar() {
+export default function Toolbar(): JSX.Element {
   const [settings, dispatchSettings] = useSettings();
   const [{ add_widget }] = useApi();
   const showUI = !settings.hideUserInterface;
@@ -16,7 +16,7 @@ export default function Toolbar() {
       <div className={style.group}>
         <div className={style.toolbar}>
           <div className={style.title}>
-            Eukolia <span className={style.tag}>beta</span>
+            Fluss <span className={style.tag}>beta</span>
           </div>
           {add_widget && (
             <ToolbarButton onPress={() => add_widget("smiley")}>
@@ -86,3 +86,5 @@ export default function Toolbar() {
     </div>
   );
 }
+
+// TODO import widgets

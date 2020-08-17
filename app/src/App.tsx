@@ -2,7 +2,9 @@ import React, { useEffect } from "react";
 import { SettingsProvider } from "./context/settings";
 import { ApiProvider, useApi } from "./context/wasm-api";
 
-import init, { start } from "../public/pkg/eukolia.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import init, { start } from "../public/pkg/fluss_app.js";
 
 import styles from "./App.module.scss";
 import Toolbar from "./panels/Toolbar";
@@ -41,7 +43,7 @@ function Main() {
 
     // Load WASM
     (async function () {
-      await init("/pkg/eukolia_bg.wasm");
+      await init("/pkg/fluss_app_bg.wasm");
       const [
         activate_events,
         add_widget,
