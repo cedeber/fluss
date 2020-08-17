@@ -302,6 +302,11 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                         "KeyH" => {
                             orders.send_msg(Msg::ToggleVisibilityWidget(Some(widget.uuid.clone())));
                         }
+                        "KeyL" => {
+                            model.app_state.settings.keep_ratio =
+                                !model.app_state.settings.keep_ratio;
+                            orders.send_msg(Msg::Draw);
+                        }
                         _ => {}
                     }
                 }
