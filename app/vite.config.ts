@@ -5,7 +5,7 @@ const config: UserConfig = {
   jsx: "react",
   plugins: [reactPlugin],
   outDir: "../public/",
-  base: "./",
+  // base: "./",
   // esbuildTarget: "es2020",
 };
 
