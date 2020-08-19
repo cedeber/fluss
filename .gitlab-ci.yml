@@ -19,7 +19,7 @@ stages:
 # Use cargo to test the project
 test:cargo:
   stage: test
-  image: "rust:alpine"
+  image: "rust:latest"
   before_script:
     - rustup component add clippy
   script:
