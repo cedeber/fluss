@@ -6,6 +6,7 @@ const config: UserConfig = {
   plugins: [reactPlugin],
   outDir: "../public/",
   base: "./",
+  // esbuildTarget: "es2020",
 };
 
 export default config;

@@ -4,7 +4,8 @@ import { ApiProvider, useApi } from "./context/wasm-api";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import init, { start } from "../public/pkg/fluss_app.js";
+// import init, { start } from "../public/pkg/fluss_app.js";
+import init, { start } from "/pkg/fluss_app.js";
 
 import style from "./App.module.scss";
 import Toolbar from "./panels/Toolbar";
