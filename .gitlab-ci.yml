@@ -21,7 +21,7 @@ test:cargo:
   stage: test
   image: "rust:latest"
   before_script:
-    - rustup component add clippy
+    # - rustup component add clippy
   script:
     - rustc --version && cargo --version  # Print version info for debugging
     - cd wasm/
@@ -30,11 +30,13 @@ test:cargo:
 
 # Build and deploy pages
 pages:
-  image: "node:latest"
+  image: "cedeber/rust-wasm-node:latest"
   stage: deploy
   script:
-    - node --version && npm --version  # Print version info for debugging
-    - cd app/
+    - rustc --version && cargo --version && wasm-pack --version && node --version && npm --version
+    - cd wasm/
+    - wasm-pack build --dev --target web --out-dir ../app/public/pkg/
+    - cd ../app/
     - npm install
     - npm run build
   artifacts:
