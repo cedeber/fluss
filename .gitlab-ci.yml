@@ -19,7 +19,7 @@ stages:
 # Use cargo to test the project
 test:cargo:
   stage: test
-  image: "rust:latest"
+  image: "registry.gitlab.com/eukolia-design/fluss-app:latest"
   before_script:
     - rustup component add clippy
   script:
@@ -30,7 +30,7 @@ test:cargo:
 
 # Build and deploy pages
 pages:
-  image: "cedeber/rust-wasm-node:latest"
+  image: "registry.gitlab.com/eukolia-design/fluss-app:latest"
   stage: deploy
   script:
     - rustc --version && cargo --version && wasm-pack --version && node --version && npm --version
