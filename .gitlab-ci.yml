@@ -20,6 +20,10 @@ stages:
 test:cargo:
   stage: test
   image: "registry.gitlab.com/eukolia-design/fluss-app:latest"
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - target/
   before_script:
     - rustup component add clippy
   script:
@@ -32,6 +36,14 @@ test:cargo:
 pages:
   image: "registry.gitlab.com/eukolia-design/fluss-app:latest"
   stage: deploy
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - target/
+      - node_modules/
+      - .npm/
+  before_script:
+    - npm ci --cache .npm --prefer-offline
   script:
     - rustc --version && cargo --version && wasm-pack --version && node --version && npm --version
     - cd wasm/
