@@ -23,7 +23,6 @@ test:cargo:
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
-      - .cargo
       - wasm/target/
   before_script:
     - rustup component add clippy
@@ -40,12 +39,11 @@ pages:
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
-      - .cargo/
       - wasm/target/
-      - .npm/
+      - app/.npm/
       - app/node_modules/
   before_script:
-    - npm ci --cache .npm --prefer-offline
+    - npm ci --cache app/.npm/ --prefer-offline
   script:
     - rustc --version && cargo --version && wasm-pack --version && node --version && npm --version
     - cd wasm/
