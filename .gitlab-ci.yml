@@ -24,7 +24,7 @@ test:cargo:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - .cargo
-      - target/
+      - wasm/target/
   before_script:
     - rustup component add clippy
   script:
@@ -41,9 +41,9 @@ pages:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - .cargo/
-      - target/
-      - node_modules/
+      - wasm/target/
       - .npm/
+      - app/node_modules/
   before_script:
     - npm ci --cache .npm --prefer-offline
   script:
