@@ -26,8 +26,8 @@ test:cargo:
       - wasm/target/
   before_script:
     - rustup component add clippy
-  script:
     - rustc --version && cargo --version  # Print version info for debugging
+  script:
     - cd wasm/
     - cargo clippy --workspace # --verbose
     # - cargo test --workspace --verbose
@@ -40,12 +40,10 @@ pages:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - wasm/target/
-      - app/.npm/
       - app/node_modules/
   before_script:
-    - cd app/ && npm ci --cache .npm/ --prefer-offline
-  script:
     - rustc --version && cargo --version && wasm-pack --version && node --version && npm --version
+  script:
     - cd wasm/
     - wasm-pack build --dev --target web --out-dir ../app/public/pkg/
     - cd ../app/
