@@ -47,7 +47,7 @@ pages:
     - cd wasm/
     - wasm-pack build --dev --target web --out-dir ../app/public/pkg/
     - cd ../app/
-    - npm install
+    - npm install --prefer-offline --no-audit
     - npm run build
   artifacts:
     paths:
