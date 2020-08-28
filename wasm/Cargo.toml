@@ -9,7 +9,7 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [profile.release]
-#lto = true
+lto = true
 opt-level = 's'
 
 [features]
@@ -19,11 +19,11 @@ default = ["console_error_panic_hook", "wee_alloc"]
 wasm-bindgen = { version = "0.2.67", features = ["serde-serialize"] }
 console_error_panic_hook = { version = "0.1.6", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
-nalgebra = { version = "0.21.1", features = ["serde-serialize"] }
-ncollide2d = "0.23.2"
-piet = "0.1.0"
-piet-web = "0.1.0"
-piet-svg = "0.1.0"
+nalgebra = { version = "0.22.0", features = ["serde-serialize"] }
+ncollide2d = "0.24.0"
+piet = "0.2.0-pre1"
+piet-web = "0.2.0-pre1"
+piet-svg = "0.2.0-pre1"
 seed = "0.7.0"
 uuid = { version = "0.8.1", features = ["wasm-bindgen", "v4"] }
 enclose = "1.1.8"
