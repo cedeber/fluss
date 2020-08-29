@@ -18,9 +18,15 @@ interface DetailsInputProps {
 
 // TODO only manage logic here, like min/max,etc
 export default function DetailsInput(props: DetailsInputProps): JSX.Element {
-  const [api] = useApi();
+  const [{ activate_events }] = useApi();
   const [isFocused, setFocused] = useState(false);
   const [value, setValue] = useState<string>(String(props.value ?? ""));
+
+  useEffect(() => {
+    return function cleanup() {
+      if (typeof activate_events === "function") activate_events(true);
+    };
+  }, [activate_events]);
 
   useEffect(() => {
     setValue(String(props.value));
@@ -65,7 +71,7 @@ export default function DetailsInput(props: DetailsInputProps): JSX.Element {
         onBlur={onValid}
         onFocusChange={(isFocused) => {
           setFocused(isFocused);
-          api.activate_events(!isFocused);
+          activate_events(!isFocused);
         }}
       />
     </div>

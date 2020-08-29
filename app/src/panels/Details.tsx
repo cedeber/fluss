@@ -9,7 +9,7 @@ import DetailsInput from "../widgets/DetailsInput";
 import { useApi } from "../context/wasm-api";
 
 export default function Details(): JSX.Element | null {
-  const [api] = useApi();
+  const [{ update_settings, update_widget }] = useApi();
   const [app] = useApp();
   const [widgets] = useWidgets();
   const [settings] = useSettings();
@@ -21,15 +21,9 @@ export default function Details(): JSX.Element | null {
   const [height, setHeight] = useState<number>();
 
   useEffect(() => {
-    return function cleanup() {
-      // reactivate events if you click on the canvas and so this panel is destroyed
-      api.activate_events(true);
-    };
-  });
-
-  useEffect(() => {
-    setCurrentWidget(widgets.find((widget) => widget.uuid === app?.active_widget_uuid));
-    setKeepRatio(app?.settings.keep_ratio || false);
+    if (!app) return;
+    setCurrentWidget(widgets.find((widget) => widget.uuid === app.active_widget_uuid));
+    setKeepRatio(app.settings.keep_ratio || false);
   }, [widgets, app]);
 
   useEffect(() => {
@@ -42,8 +36,8 @@ export default function Details(): JSX.Element | null {
   }, [currentWidget?.geometry]);
 
   function toggleKeepRatio() {
-    if (api && app) {
-      api.update_settings({
+    if (update_settings && app) {
+      update_settings({
         ...app.settings,
         keep_ratio: !app.settings.keep_ratio,
       });
@@ -52,8 +46,8 @@ export default function Details(): JSX.Element | null {
 
   function onChange(prop: string) {
     return function (value: number) {
-      if (currentWidget) {
-        api.update_widget({
+      if (currentWidget && update_widget) {
+        update_widget({
           ...currentWidget,
           geometry: {
             ...currentWidget.geometry,
