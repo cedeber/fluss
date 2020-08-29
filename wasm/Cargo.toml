@@ -5,12 +5,15 @@ description = "UI Design Application with Motion"
 authors = ["Cédric Eberhardt <hi@eukolia.design>"]
 edition = "2018"
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
 [lib]
 crate-type = ["cdylib"]
 
 [profile.release]
-lto = true
-opt-level = 's'
+# lto = true
+# opt-level = 's'
 
 [features]
 default = ["console_error_panic_hook", "wee_alloc"]
