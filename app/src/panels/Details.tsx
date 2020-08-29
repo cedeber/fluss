@@ -21,6 +21,13 @@ export default function Details(): JSX.Element | null {
   const [height, setHeight] = useState<number>();
 
   useEffect(() => {
+    return function cleanup() {
+      // reactivate events if you click on the canvas and so this panel is destroyed
+      api.activate_events(true);
+    };
+  });
+
+  useEffect(() => {
     setCurrentWidget(widgets.find((widget) => widget.uuid === app?.active_widget_uuid));
     setKeepRatio(app?.settings.keep_ratio || false);
   }, [widgets, app]);
