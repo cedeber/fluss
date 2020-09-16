@@ -58,13 +58,23 @@
   margin-right: 10px;
 }
 
+.layer.hidden .layer-icon {
+  opacity: 0.3;
+}
+
 .name {
   min-width: 50px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  flex: 1;
+  //flex: 1;
   font-size: 13px;
+}
+
+.layer.hidden .name {
+  background: linear-gradient(to right, transparent, currentColor);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .tool {
