@@ -1,5 +1,5 @@
 stages:
-  - test
+  # - test
   - deploy
 
 # Optional: Pick zero or more services to be used on all builds.
@@ -17,20 +17,20 @@ stages:
 #   - apt-get install -yqq --no-install-recommends build-essential
 
 # Use cargo to test the project
-test:cargo:
-  stage: test
-  image: "registry.gitlab.com/eukolia-design/fluss-app:latest"
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - wasm/target/
-  before_script:
-    - rustup component add clippy
-    - rustc --version && cargo --version  # Print version info for debugging
-  script:
-    - cd wasm/
-    - cargo clippy --workspace # --verbose
-    # - cargo test --workspace --verbose
+# test:cargo:
+#   stage: test
+#   image: "registry.gitlab.com/eukolia-design/fluss-app:latest"
+#   cache:
+#     key: ${CI_COMMIT_REF_SLUG}
+#     paths:
+#       - wasm/target/
+#   before_script:
+#     - rustup component add clippy
+#     - rustc --version && cargo --version  # Print version info for debugging
+#   script:
+#     - cd wasm/
+#     - cargo clippy --workspace # --verbose
+#     # - cargo test --workspace --verbose
 
 # Build and deploy pages
 pages:
@@ -42,6 +42,8 @@ pages:
       - wasm/target/
       - app/node_modules/
   before_script:
+    - echo $SERVER_URL
+    - echo $K8S_SECRET_SERVER_URL
     - rustc --version && cargo --version && wasm-pack --version && node --version && npm --version
   script:
     - cd wasm/
