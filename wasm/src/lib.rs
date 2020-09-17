@@ -1,15 +1,16 @@
-use enclose::enc;
-use nalgebra::Point2;
-use piet::{Color, RenderContext};
-use piet_web::WebRenderContext;
-use seed::{attrs, canvas, prelude::*, App};
-use serde::{Deserialize, Serialize};
-use web_sys::HtmlCanvasElement;
-use widgets::{
+use crate::widgets::{
     rect::{Rect, RectState},
     smiley::Smiley,
     {Draw, RectGeometry, Settings, UiGlobalState, WidgetState},
 };
+use enclose::enc;
+use nalgebra::Point2;
+use piet::{Color, RenderContext};
+use piet_web::WebRenderContext;
+use seed::{attrs, canvas, log, prelude::*, App};
+use serde::{Deserialize, Serialize};
+use std::env;
+use web_sys::HtmlCanvasElement;
 
 mod widgets;
 
@@ -153,12 +154,23 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
     orders.after_next_render(|_| Msg::Rendered);
     let mut model = Model::default();
 
-    // TODO (later) Serialize (serde) for loading/saving
+    // WebSocket TODO: Make it better
+    let web_server = env::var("SERVER_URL").or_else("0.0.0.0:8080");
+    let web_socket = WebSocket::builder(format!("ws://{}/ws/", web_server), orders)
+        .on_open(Msg::SendMessage)
+        .on_message(Msg::MessageReceived)
+        .build_and_open();
+
+    // TODO: (later) Serialize (serde) for loading/saving
     model.widgets = vec![
         Smiley::new("Smiley Pro", (275.0, 300.0), 150.0),
         Smiley::new("Smiley", (475.0, 110.0), 50.0),
         Smiley::new("Smiley Mini", (550.0, 165.0), 30.0),
     ];
+
+    if let Ok(ws) = web_socket {
+        model.web_socket = Some(ws);
+    }
 
     model
 }
@@ -171,6 +183,7 @@ pub struct Model {
     canvas: ElRef<HtmlCanvasElement>, // Fluss Canvas. Keep the context instead?
     widgets: Vec<Smiley>,
     app_state: UiGlobalState, // UI global state
+    web_socket: Option<WebSocket>,
 }
 
 // `Msg` describes the different events you can modify state with.
@@ -193,6 +206,8 @@ pub enum Msg {
     SwapWidget(JsValue),
     UpdateSettings(JsValue), // Settings
     Draw,
+    MessageReceived(WebSocketMessage),
+    SendMessage(),
 }
 
 // `update` describes how to handle each `Msg`.
@@ -220,7 +235,7 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             model.event_streams.clear();
         }
         Msg::MouseMoved(event) => {
-            model.app_state.cursor.previous_position = model.app_state.cursor.position;
+            model.app_state.cursor.previous_position = &*model.app_state.cursor.position;
             model.app_state.cursor.position = Some(Point2::new(
                 event.client_x().into(),
                 event.client_y().into(),
@@ -430,6 +445,15 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
         }
         Msg::Draw => {
             draw(&model.canvas, &mut model.app_state, &mut model.widgets);
+        }
+        Msg::MessageReceived(message) => {
+            log! {"received"}
+            log! {message}
+        }
+        Msg::SendMessage() => {
+            if let Some(ws) = &model.web_socket {
+                ws.send_text("Hello, websocket").unwrap();
+            }
         }
     }
 }
