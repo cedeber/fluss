@@ -9,7 +9,6 @@ use piet::{Color, RenderContext};
 use piet_web::WebRenderContext;
 use seed::{attrs, canvas, log, prelude::*, App};
 use serde::{Deserialize, Serialize};
-use std::env;
 use web_sys::HtmlCanvasElement;
 
 mod widgets;
@@ -154,13 +153,13 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
     orders.after_next_render(|_| Msg::Rendered);
     let mut model = Model::default();
 
-    // WebSocket TODO: Make it better
-    let web_server_url = env::var("K8S_SECRET_SERVER_URL");
-    let web_server = match web_server_url {
-        Ok(url) => format!("wss://{}/ws/", url),
-        Err(_) => String::from("ws://0.0.0.0:8080/ws/"),
+    // WebSocket
+    let web_server_url = if cfg!(debug_assertions) {
+        "ws://0.0.0.0:8080/ws/"
+    } else {
+        "wss://fluss-server-beta.eukolia.design/ws/"
     };
-    let web_socket = WebSocket::builder(web_server, orders)
+    let web_socket = WebSocket::builder(web_server_url, orders)
         .on_open(Msg::SendMessage)
         .on_message(Msg::MessageReceived)
         .build_and_open();
