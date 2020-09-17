@@ -155,8 +155,12 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
     let mut model = Model::default();
 
     // WebSocket TODO: Make it better
-    let web_server = env::var("SERVER_URL").unwrap_or(String::from("0.0.0.0:8080"));
-    let web_socket = WebSocket::builder(format!("ws://{}/ws/", web_server), orders)
+    let web_server_url = env::var("K8S_SECRET_SERVER_URL");
+    let web_server = match web_server_url {
+        Ok(url) => format!("wss://{}/ws/", url),
+        Err(_) => String::from("ws://0.0.0.0:8080/ws/"),
+    };
+    let web_socket = WebSocket::builder(web_server, orders)
         .on_open(Msg::SendMessage)
         .on_message(Msg::MessageReceived)
         .build_and_open();
