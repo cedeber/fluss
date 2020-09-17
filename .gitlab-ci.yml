@@ -1,5 +1,5 @@
 stages:
-  # - test
+# - test
   - deploy
 
 # Optional: Pick zero or more services to be used on all builds.
@@ -42,8 +42,6 @@ pages:
       - wasm/target/
       - app/node_modules/
   before_script:
-    - echo $SERVER_URL
-    - echo $K8S_SECRET_SERVER_URL
     - rustc --version && cargo --version && wasm-pack --version && node --version && npm --version
   script:
     - cd wasm/
