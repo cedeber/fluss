@@ -155,7 +155,7 @@ pub fn init(_: Url, orders: &mut impl Orders<Msg>) -> Model {
     let mut model = Model::default();
 
     // WebSocket TODO: Make it better
-    let web_server = env::var("SERVER_URL").or_else("0.0.0.0:8080");
+    let web_server = env::var("SERVER_URL").unwrap_or(String::from("0.0.0.0:8080"));
     let web_socket = WebSocket::builder(format!("ws://{}/ws/", web_server), orders)
         .on_open(Msg::SendMessage)
         .on_message(Msg::MessageReceived)
@@ -235,7 +235,7 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             model.event_streams.clear();
         }
         Msg::MouseMoved(event) => {
-            model.app_state.cursor.previous_position = &*model.app_state.cursor.position;
+            model.app_state.cursor.previous_position = model.app_state.cursor.position;
             model.app_state.cursor.position = Some(Point2::new(
                 event.client_x().into(),
                 event.client_y().into(),
