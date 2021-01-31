@@ -1,5 +1,3 @@
-# Ευκολία Design
+# Fluss
 
-## Fluss Application
-
-Experimental UI Design Application with Motion, done with Vue, Rust and WebAssembly.
+Experimental UI Design Application with Motion.
