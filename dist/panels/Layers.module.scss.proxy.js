@@ -1,0 +1,1 @@
+export default "/dist/panels/Layers.module.scss";

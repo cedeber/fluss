@@ -1,0 +1,16 @@
+{
+  "imports": {
+    "@react-aria/button": "./@react-aria/button.js",
+    "@react-aria/focus": "./@react-aria/focus.js",
+    "@react-aria/interactions": "./@react-aria/interactions.js",
+    "@react-aria/switch": "./@react-aria/switch.js",
+    "@react-aria/textfield": "./@react-aria/textfield.js",
+    "@react-aria/visually-hidden": "./@react-aria/visually-hidden.js",
+    "@react-stately/toggle": "./@react-stately/toggle.js",
+    "clsx": "./clsx.js",
+    "fuse.js": "./fusejs.js",
+    "ramda": "./ramda.js",
+    "react": "./react.js",
+    "react-dom": "./react-dom.js"
+  }
+}
