@@ -1,0 +1,30 @@
+name: Wasm
+
+on:
+  workflow_run:
+    workflows: ["Rust"]
+    branches: [main]
+    types: 
+      - completed
+      
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Download wasm-pack
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    - name: Build Wasm
+      run: |
+        cd wasm/
+        wasm-pack build --target web --out-dir ../app/public/pkg/
+    - name: Clean files
+      run: |
+        rm app/public/pkg/.gitignore
+        rm app/public/pkg/*.ts
+        rm app/public/pkg/*.json
