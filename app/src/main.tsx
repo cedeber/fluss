@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./main.css";
-import "./assets/fonts/fa.css";
+import "./assets/font-awesome/fa.css";
 import App from "./App";
 
 ReactDOM.render(
