@@ -4,8 +4,6 @@ target
 build
 dist
 *.local
-*.lock
-*lock.*
 node_modules
 .vscode
 .idea
