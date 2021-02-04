@@ -16,8 +16,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - run: cd wasm/
     - name: Build
-      run: cargo build --verbose
+      run: |
+        cd wasm
+        cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: |
+        cd wasm
+        cargo test --verbose
