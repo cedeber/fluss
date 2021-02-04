@@ -2,12 +2,10 @@
   "name": "fluss-app",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build"
+    "dev": "snowpack dev",
+    "build": "snowpack build"
   },
   "dependencies": {
-    "@pika/react": "^16.13.1",
-    "@pika/react-dom": "^16.13.1",
     "@react-aria/button": "^3.2.1",
     "@react-aria/focus": "^3.2.1",
     "@react-aria/interactions": "^3.2.0",
@@ -19,28 +17,33 @@
     "clsx": "^1.1.1",
     "fuse.js": "^6.4.1",
     "ramda": "^0.27.1",
-    "react": "npm:@pika/react@^16.13.1",
-    "react-dom": "npm:@pika/react-dom@^16.13.1"
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "devDependencies": {
+    "@snowpack/plugin-dotenv": "^2.0.5",
+    "@snowpack/plugin-react-refresh": "^2.4.0",
+    "@snowpack/plugin-typescript": "^1.2.1",
     "@types/ramda": "^0.27.17",
-    "@types/react": "^16.9.49",
-    "@types/react-dom": "^16.9.8",
+    "@types/react": "^17.0.1",
+    "@types/react-dom": "^17.0.0",
+    "@types/snowpack-env": "^2.3.3",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "eslint": "^7.9.0",
-    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-hooks": "^4.1.2",
     "prettier": "^2.1.2",
     "sass": "^1.26.10",
-    "typescript": "^4.0.2",
-    "vite": "1.0.0-rc.3",
-    "vite-plugin-react": "^3.0.2"
+    "snowpack": "^3.0.11",
+    "tslib": "^1.14.1",
+    "typescript": "^4.0.2"
   },
   "prettier": {
     "printWidth": 100,
+    "tabWidth": 4,
     "trailingComma": "all"
   }
 }

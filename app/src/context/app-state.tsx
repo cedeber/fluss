@@ -1,5 +1,5 @@
 import React from "react";
-import { UiGlobalState } from "../types";
+import type { UiGlobalState } from "../types";
 
 type Actions = "update";
 type Action = { type: Actions; payload: UiGlobalState };

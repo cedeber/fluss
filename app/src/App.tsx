@@ -12,7 +12,7 @@ import Toolbar from "./panels/Toolbar";
 import Layers from "./panels/Layers";
 import { useApp, AppProvider } from "./context/app-state";
 import { WidgetsProvider, useWidgets } from "./context/widgets";
-import { UiGlobalState, Widget } from "./types";
+import type { UiGlobalState, Widget } from "./types";
 import Details from "./panels/Details";
 
 function App(): React.ReactElement {

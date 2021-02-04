@@ -6,7 +6,7 @@ import { VisuallyHidden } from "@react-aria/visually-hidden";
 import { useToggleState } from "@react-stately/toggle";
 import cx from "clsx";
 import style from "./ToolbarButton.module.scss";
-import { AriaSwitchProps } from "@react-types/switch";
+import type { AriaSwitchProps } from "@react-types/switch";
 
 export default function ToolbarButton(props: AriaSwitchProps): React.ReactElement {
   const ref = useRef<HTMLInputElement>(null);

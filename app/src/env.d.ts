@@ -23,8 +23,8 @@ declare namespace NodeJS {
   }
 }
 
-declare var process: NodeJS.Process;
-
+declare let process: NodeJS.Process;
+/*
 declare module "*.gif" {
   const src: string;
   export default src;
@@ -75,3 +75,4 @@ declare module "*.module.sass" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
+*/

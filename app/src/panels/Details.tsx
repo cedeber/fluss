@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import cx from "clsx";
 import { useApp } from "../context/app-state";
-import { Widget } from "../types";
+import type { Widget } from "../types";
 import { useWidgets } from "../context/widgets";
 import style from "./Details.module.scss";
 import { useSettings } from "../context/settings";

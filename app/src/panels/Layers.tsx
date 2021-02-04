@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import style from "./Layers.module.scss";
 import { useSettings } from "../context/settings";
 import { useWidgets } from "../context/widgets";
-import { Widget } from "../types";
+import type { Widget } from "../types";
 import cx from "clsx";
 import { useApp } from "../context/app-state";
 import Fuse from "fuse.js";
 import { useApi } from "../context/wasm-api";
 import { useFocus, useHover, useKeyboard, usePress } from "@react-aria/interactions";
 import { FocusRing, useFocusRing } from "@react-aria/focus";
-import { AriaButtonProps } from "@react-types/button";
+import type { AriaButtonProps } from "@react-types/button";
 import { useButton } from "@react-aria/button";
 
 type ReactState<T> = [T, React.Dispatch<React.SetStateAction<T>>];

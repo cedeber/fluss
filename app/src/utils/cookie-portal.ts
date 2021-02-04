@@ -7,7 +7,7 @@ import { clone } from "ramda";
  * @returns The specified cookie property's value (or all if it has not been set)
  */
 export function readCookie(name: string): string | {} {
-  const jar = {};
+  const jar: any = {};
   const cookies = document.cookie ? document.cookie.split("; ") : [];
 
   for (const c of cookies) {
@@ -50,7 +50,7 @@ export function writeCookie(
   value: string | number | object,
   attributes: object = {},
 ) {
-  const clonedAttributes = Object.assign({ path: "/" }, clone(attributes));
+  const clonedAttributes: any = Object.assign({ path: "/" }, clone(attributes));
   let clonedValue = clone(value);
 
   if (typeof clonedAttributes.expires === "number") {

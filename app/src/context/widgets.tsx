@@ -1,5 +1,5 @@
 import React from "react";
-import { Widget } from "../types";
+import type { Widget } from "../types";
 
 type Actions = "update";
 type Action = { type: Actions; payload: Widget[] };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Api } from "../types";
+import type { Api } from "../types";
 
 type Actions = "update";
 type Action = { type: Actions; payload: State };

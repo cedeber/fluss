@@ -3,7 +3,7 @@ import cx from "clsx";
 import { useApi } from "../context/wasm-api";
 import style from "./DetailsInput.module.scss";
 import { useTextField } from "@react-aria/textfield";
-import { AriaTextFieldProps } from "@react-types/textfield";
+import type { AriaTextFieldProps } from "@react-types/textfield";
 
 interface DetailsInputProps {
   label: string;
@@ -83,11 +83,12 @@ function Input(props: AriaTextFieldProps): JSX.Element {
   const input = useRef<HTMLInputElement>(null);
   const { labelProps, inputProps } = useTextField(props, input);
 
-  return (
+    return (
     <>
       <label className={style.label} {...labelProps}>
         {props.label}
       </label>
+      {/* @ts-ignore */}
       <input ref={input} className={style.input} {...inputProps} />
       {/*<div className={style.unit}>{ unit }</div>*/}
     </>

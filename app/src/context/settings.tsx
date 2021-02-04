@@ -1,6 +1,6 @@
 import React from "react";
 import storage from "../utils/proxy-storage";
-import { AppSettings } from "../types";
+import type { AppSettings } from "../types";
 
 type Actions = "toggleUi";
 type Action = { type: Actions };
