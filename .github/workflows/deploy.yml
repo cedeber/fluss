@@ -28,12 +28,7 @@ jobs:
     - name: Build Wasm
       run: |
         cd wasm
-        wasm-pack build --target web --out-dir ../app/public/pkg/
-    - name: Clean files
-      run: |
-        rm app/public/pkg/.gitignore
-        rm app/public/pkg/*.ts
-        rm app/public/pkg/*.json
+        wasm-pack build --target web --out-dir ../app/src/wasm/
     - name: Build JS
       run: |
         cd app
@@ -41,9 +36,9 @@ jobs:
         npm run build
     - name: Create CNAME
       run: |
-        cd app/build
+        cd app/dist
         echo "fluss.cedeber.fr" > CNAME
     - uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./app/build/
+        publish_dir: ./app/dist/

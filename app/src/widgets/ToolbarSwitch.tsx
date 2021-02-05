@@ -9,26 +9,26 @@ import style from "./ToolbarButton.module.scss";
 import type { AriaSwitchProps } from "@react-types/switch";
 
 export default function ToolbarButton(props: AriaSwitchProps): React.ReactElement {
-  const ref = useRef<HTMLInputElement>(null);
-  const state = useToggleState(props);
-  const { inputProps } = useSwitch(props, state, ref);
-  const { isFocusVisible, focusProps } = useFocusRing();
-  const { hoverProps, isHovered } = useHover({});
+    const ref = useRef<HTMLInputElement>(null);
+    const state = useToggleState(props);
+    const { inputProps } = useSwitch(props, state, ref);
+    const { isFocusVisible, focusProps } = useFocusRing();
+    const { hoverProps, isHovered } = useHover({});
 
-  return (
-    <>
-      <VisuallyHidden>
-        <input {...inputProps} {...focusProps} {...hoverProps} ref={ref} />
-      </VisuallyHidden>
-      <div
-        className={cx(style.button, {
-          [style.buttonFocus]: isFocusVisible,
-          [style.buttonHover]: isHovered,
-        })}
-        role="button"
-      >
-        {props.children}
-      </div>
-    </>
-  );
+    return (
+        <>
+            <VisuallyHidden>
+                <input {...inputProps} {...focusProps} {...hoverProps} ref={ref} />
+            </VisuallyHidden>
+            <div
+                className={cx(style.button, {
+                    [style.buttonFocus]: isFocusVisible,
+                    [style.buttonHover]: isHovered,
+                })}
+                role="button"
+            >
+                {props.children}
+            </div>
+        </>
+    );
 }

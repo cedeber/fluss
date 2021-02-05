@@ -1,4 +1,4 @@
-public/pkg
+src/wasm
 target
 build
 dist
