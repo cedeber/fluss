@@ -1,1 +1,0 @@
-export default "/dist/widgets/ToolbarButton.module.scss";

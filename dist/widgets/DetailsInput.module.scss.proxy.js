@@ -1,1 +1,0 @@
-export default "/dist/widgets/DetailsInput.module.scss";
