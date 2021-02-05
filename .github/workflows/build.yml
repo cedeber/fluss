@@ -28,6 +28,10 @@ jobs:
       run: |
         cd wasm
         cargo test --verbose
+    - name: Build Wasm
+      run: |
+        cd wasm
+        wasm-pack build --dev --target web --out-dir ../app/src/wasm/
     - name: Build Node
       run: |
         cd app
