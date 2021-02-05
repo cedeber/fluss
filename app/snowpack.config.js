@@ -12,4 +12,11 @@ module.exports = {
     packageOptions: {
         polyfillNode: true,
     },
+    optimize: {
+        // bundle: true,
+        splitting: true, // maybe not
+        treeshake: true, // maybe not
+        minify: true,
+        target: "es2018",
+    },
 };
