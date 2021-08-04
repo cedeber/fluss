@@ -57,7 +57,7 @@ export default function Toolbar(): JSX.Element {
                     </div>
                 )}
                 {showUI && (
-                    <div className={style.toolbar}>
+                    <div className={style.toolbar} hidden>
                         <div className={style.button} hidden>
                             <i className="fad fa-sliders-v fa-lg" />
                         </div>

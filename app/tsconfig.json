@@ -21,5 +21,5 @@
         "removeComments": true,
         "importsNotUsedAsValues": "error"
     },
-    "include": ["src", "types", "public/pkg/eukolia.d.ts", "public/pkg/eukolia_bg.d.ts"]
+    "include": ["src", "types", "app/src/wasm/fluss.d.ts", "app/src/wasm/fluss_bg.d.ts"]
 }

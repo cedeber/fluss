@@ -4,9 +4,9 @@ import { ApiProvider, useApi } from "./context/wasm-api";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import init, { start } from "./wasm/fluss_app.js";
+import init, { start } from "./wasm/fluss.js";
 // Need to import it so that Vite treats it as an asset
-import wasm from "./wasm/fluss_app_bg.wasm?url";
+import wasm from "./wasm/fluss_bg.wasm?url";
 
 import style from "./App.module.scss";
 import Toolbar from "./panels/Toolbar";

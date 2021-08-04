@@ -4,7 +4,5 @@ import { defineConfig } from "vite";
 export default defineConfig({
     plugins: [reactRefresh()],
     base: "./",
-    build: {
-        target: "es2018",
-    },
+    css: { modules: { localsConvention: "camelCase" } },
 });

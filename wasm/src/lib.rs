@@ -479,7 +479,7 @@ fn draw(
     let mut ctx = WebRenderContext::new(context, window);
     let cursor = app_state.cursor;
 
-    ctx.clear(Color::rgb8(0xf9, 0xf9, 0xf9));
+    ctx.clear(None, Color::rgb8(0xf9, 0xf9, 0xf9));
 
     // --- Update ---
 

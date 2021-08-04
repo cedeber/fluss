@@ -1,8 +1,8 @@
 [package]
-name = "fluss-app"
+name = "fluss"
 version = "0.1.0"
 description = "UI Design Application with Motion"
-authors = ["Cédric Eberhardt <hi@eukolia.design>"]
+authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
 edition = "2018"
 
 [package.metadata.wasm-pack.profile.release]
@@ -19,16 +19,16 @@ crate-type = ["cdylib"]
 default = ["console_error_panic_hook", "wee_alloc"]
 
 [dependencies]
-wasm-bindgen = { version = "0.2.68", features = ["serde-serialize"] }
+wasm-bindgen = { version = "0.2.75", features = ["serde-serialize"] }
 console_error_panic_hook = { version = "0.1.6", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
-nalgebra = { version = "0.22.0", features = ["serde-serialize"] }
-ncollide2d = "0.24.0"
-piet = "0.2.0-pre3"
-piet-web = "0.2.0-pre3"
-piet-svg = "0.2.0-pre3"
-seed = "0.7.0"
-uuid = { version = "0.8.1", features = ["wasm-bindgen", "v4"] }
+nalgebra = { version = "0.28.0", features = ["serde-serialize"] }
+ncollide2d = "0.31.0"
+piet = "0.4.0"
+piet-web = "0.4.0"
+piet-svg = "0.4.0"
+seed = "0.8.0"
+uuid = { version = "0.8.2", features = ["wasm-bindgen", "v4"] }
 enclose = "1.1.8"
-serde = { version = "1.0.116", features = ["derive"] }
-serde_json = "1.0.57"
+serde = { version = "1.0.127", features = ["derive"] }
+serde_json = "1.0.66"
