@@ -30,9 +30,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('app/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Download wasm-pack
-        # run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        run: npm install -g wasm-pack
       - name: Cache Rust & Wasm
         uses: actions/cache@v2
         with:
@@ -45,6 +42,9 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('wasm/**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
+      - name: Download wasm-pack
+        # run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        run: npm install -g wasm-pack
       - name: Build Wasm
         run: |
           cd wasm
