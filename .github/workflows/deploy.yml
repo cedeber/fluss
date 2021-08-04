@@ -1,44 +1,58 @@
 name: Deploy
 
 on:
-  workflow_run:
-    workflows: ["Build & Test"]
+  push:
     branches: [main]
-    types:
-      - completed
+
+# on:
+#   workflow_run:
+#     workflows: ["Build & Test"]
+#     branches: [main]
+#     types:
+#       - completed
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   deploy:
-
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-        check-latest: true
-    - name: Download wasm-pack
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-    - name: Build Wasm
-      run: |
-        cd wasm
-        wasm-pack build --target web --out-dir ../app/src/wasm/
-    - name: Build JS
-      run: |
-        cd app
-        npm install
-        npm run build
-    - name: Create CNAME
-      run: |
-        cd app/dist
-        echo "fluss.cedeber.fr" > CNAME
-    - uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./app/dist/
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+          cache: "npm"
+      - name: Build JS
+        run: |
+          cd app
+          npm install
+          npm run build
+      - name: Download wasm-pack
+        # run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        run: npm install -g wasm-pack
+      - name: Cache Rust & Wasm build
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            wasm/target/
+          key: ${{ runner.os }}-wasm-${{ hashFiles('wasm/**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-wasm-
+      - name: Build Wasm
+        run: |
+          cd wasm
+          wasm-pack build --target web --out-dir ../app/src/wasm/
+      - name: Create CNAME
+        run: |
+          cd app/dist
+          echo "fluss.cedeber.fr" > CNAME
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./app/dist/
