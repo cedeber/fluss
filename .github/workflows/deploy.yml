@@ -30,11 +30,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('app/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Build JS
-        run: |
-          cd app
-          npm install
-          npm run build
       - name: Download wasm-pack
         # run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
         run: npm install -g wasm-pack
@@ -54,6 +49,11 @@ jobs:
         run: |
           cd wasm
           wasm-pack build --target web --out-dir ../app/src/wasm/
+      - name: Build JS
+        run: |
+          cd app
+          npm install
+          npm run build
       - name: Create CNAME
         run: |
           cd app/dist
