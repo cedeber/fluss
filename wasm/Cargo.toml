@@ -1,19 +1,23 @@
 [package]
 name = "fluss"
 version = "0.1.0"
-description = "UI Design Application with Motion"
+description = "Experimental GPX Editor"
 authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
 edition = "2018"
+resolver = "2" # remove it for edition 2021
 
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = false
+wasm-opt = true
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
+
+[profile.dev]
+incremental = true # Sould be automatic with Rust 1.52?
 
 [profile.release]
-# lto = true
-# opt-level = 's'
+lto = true
+opt-level = 's'
 
 [features]
 default = ["console_error_panic_hook", "wee_alloc"]
