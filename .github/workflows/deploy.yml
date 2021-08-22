@@ -4,13 +4,6 @@ on:
   push:
     branches: [main]
 
-# on:
-#   workflow_run:
-#     workflows: ["Build & Test"]
-#     branches: [main]
-#     types:
-#       - completed
-
 env:
   CARGO_TERM_COLOR: always
 
