@@ -1,3 +1,3 @@
 # Fluss
 
-Experimental UI Design Application with Motion.
+Experimental GPX Editor application with WASM and React.

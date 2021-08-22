@@ -1,10 +1,23 @@
-src/wasm
-target
-build
-dist
-*.local
-node_modules
-.vscode
-.idea
+# Build
+target/
+build/
+dist/
+
+# IDE
 *.iml
+.idea
+.vscode
+
+# Node.js
+node_modules
+
+# Jest
+coverage
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Other
+*.local
+*.log
