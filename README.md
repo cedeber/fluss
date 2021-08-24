@@ -1,3 +1,3 @@
 # Fluss
 
-Experimental GPX Editor application with WASM and React.
+Experimental GPX Editor and Analytics application developed with Rust (Wasm) and TypeScript (React).
