@@ -48,6 +48,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72957246c41db82b8ef88a5486143830adeb8227ef9837740bdec67724cf2c5b"
 
 [[package]]
+name = "canvas"
+version = "0.1.0"
+dependencies = [
+ "console_error_panic_hook",
+ "enclose",
+ "nalgebra",
+ "ncollide2d",
+ "piet",
+ "piet-svg",
+ "piet-web",
+ "seed",
+ "serde",
+ "serde_json",
+ "uuid",
+ "wasm-bindgen",
+ "wee_alloc",
+]
+
+[[package]]
 name = "cfg-if"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -124,25 +143,6 @@ name = "fixedbitset"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37ab347416e802de484e4d03c7316c48f1ecb56574dfd4a46a80f173ce1de04d"
-
-[[package]]
-name = "fluss"
-version = "0.1.0"
-dependencies = [
- "console_error_panic_hook",
- "enclose",
- "nalgebra",
- "ncollide2d",
- "piet",
- "piet-svg",
- "piet-web",
- "seed",
- "serde",
- "serde_json",
- "uuid",
- "wasm-bindgen",
- "wee_alloc",
-]
 
 [[package]]
 name = "futures"

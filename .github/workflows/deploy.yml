@@ -38,10 +38,10 @@ jobs:
       - name: Download wasm-pack
         # run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
         run: npm install -g wasm-pack
-      - name: Build Wasm
+      - name: Build Canvas Wasm
         run: |
-          cd wasm
-          wasm-pack build --target web --out-dir ../app/src/wasm/
+          cd canvas
+          wasm-pack build --target web --release --out-dir ../app/src/wasm/
       - name: Build JS
         run: |
           cd app

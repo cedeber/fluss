@@ -1,7 +1,7 @@
 [package]
-name = "fluss"
+name = "canvas"
 version = "0.1.0"
-description = "Experimental GPX Editor"
+description = "Experimental GPX Editor - Canvas"
 authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
 edition = "2018"
 resolver = "2" # remove it for edition 2021
