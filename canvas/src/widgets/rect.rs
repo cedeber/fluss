@@ -376,7 +376,7 @@ impl Rect {
 
         // -> Stroked lines
         let mut line_stroke = StrokeStyle::new();
-        line_stroke.set_dash(vec![5.0, 3.0], 0.0);
+        line_stroke.set_dash_pattern(vec![5.0, 3.0]);
         let brush = context.solid_brush(PINK);
 
         // Top

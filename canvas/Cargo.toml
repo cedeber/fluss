@@ -3,17 +3,13 @@ name = "canvas"
 version = "0.1.0"
 description = "Experimental GPX Editor - Canvas"
 authors = ["Cédric Eberhardt <hello+code@cedeber.fr>"]
-edition = "2018"
-resolver = "2" # remove it for edition 2021
+edition = "2021"
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = true
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-
-[profile.dev]
-incremental = true # Sould be automatic with Rust 1.52?
 
 [profile.release]
 lto = true
@@ -23,16 +19,17 @@ opt-level = 's'
 default = ["console_error_panic_hook", "wee_alloc"]
 
 [dependencies]
-wasm-bindgen = { version = "0.2.76", features = ["serde-serialize"] }
-console_error_panic_hook = { version = "0.1.6", optional = true }
+wasm-bindgen = { version = "0.2.80", features = ["serde-serialize"] }
+console_error_panic_hook = { version = "0.1.7", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
-nalgebra = { version = "0.29.0", features = ["serde-serialize"] }
-ncollide2d = "0.32.0"
-piet = "0.4.0"
-piet-web = "0.4.0"
-piet-svg = "0.4.0"
+nalgebra = { version = "0.30.1", features = ["serde-serialize"] }
+parry2d = "0.8.0"
+piet = "0.5.0"
+piet-web = "0.5.0"
+piet-svg = "0.5.0"
 seed = "0.8.0"
 uuid = { version = "0.8.2", features = ["wasm-bindgen", "v4"] }
 enclose = "1.1.8"
-serde = { version = "1.0.128", features = ["derive"] }
-serde_json = "1.0.66"
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
+ncollide2d = "0.33.0"
